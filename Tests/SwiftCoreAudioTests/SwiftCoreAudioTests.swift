@@ -10,12 +10,9 @@ final class SwiftCoreAudioTests: XCTestCase {
         XCTAssertNoThrow(try AudioObject(audioObjectID: 122).name, "Throws")
         XCTAssertEqual(try AudioObject(audioObjectID: 122).name, "U28E590", "")
         
-        print(try AudioSystem.defaultInputDevice.name)
-        print(try AudioSystem.defaultOutputDevice.name)
         
-        
-        for device in try AudioSystem.devices {
-            print(try device.name)
+        for audioObject in try AudioSystem.audioSystem.getOwnedObjects() {
+            print(try? audioObject.name)
         }
     }
 }
