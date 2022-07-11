@@ -7,12 +7,11 @@ final class SwiftCoreAudioTests: XCTestCase {
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
         
-        XCTAssertNoThrow(try AudioObject(audioObjectID: 122).name, "Throws")
-        XCTAssertEqual(try AudioObject(audioObjectID: 122).name, "U28E590", "")
-        
-        
-        for audioObject in try AudioSystem.audioSystem.getOwnedObjects() {
-            print(try? audioObject.name)
-        }
+        let audioDevice = try AudioSystem.getAudioDevice(from: "BuiltInSpeakerDevice")
+        try print(audioDevice.hogModeProcessID as Any)
+        try audioDevice.toggleHodMode()
+        try print(audioDevice.hogModeProcessID as Any)
+        try audioDevice.toggleHodMode()
+        try print(audioDevice.hogModeProcessID as Any)
     }
 }
