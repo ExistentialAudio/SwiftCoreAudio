@@ -118,6 +118,10 @@ class AudioDevice: AudioObject {
         }
     }
     
+    public func setNominalSampleRate(sampleRate: Double) throws {
+        try setDouble(for: kAudioDevicePropertyNominalSampleRate, to: sampleRate)
+    }
+    
     public var availableNominalSampleRates: [Double] {
         get throws {
             try getDoubles(for: kAudioDevicePropertyAvailableNominalSampleRates)
@@ -251,22 +255,65 @@ class AudioDevice: AudioObject {
         try setUInt32(for: kAudioDevicePropertyProcessMute, to: isMuted ? 1 : 0)
     }
     
-    public var jackIsConnected: Bool {
-        get throws {
-            try getUInt32(for: kAudioDevicePropertyJackIsConnected) == 0 ? false : true
-        }
+    // Implimented in AudioControls
+    public func getJackIsConnected(for direction: AudioDirection, channel: Int) throws -> Bool {
+        try getUInt32(
+            for: kAudioDevicePropertyJackIsConnected,
+            scope: AudioObjectPropertyScope(direction.rawValue),
+            element: AudioObjectPropertyElement(channel)
+        ) != 0
+    }
+
+    public func setJackIsConnect(for direction: AudioDirection, channel: Int, to value: Bool) throws {
+        try setUInt32(
+            for: kAudioDevicePropertyJackIsConnected,
+            scope: AudioObjectPropertyScope(direction.rawValue),
+            element: AudioObjectPropertyElement(channel),
+            to: value ? 1 : 0
+        )
     }
     
-    // Implimented in AudioControls
+    public func getVolume(for scope: AudioScope, channel: Int) throws -> Double {
+        Double(try getFloat32(
+            for: kAudioDevicePropertyVolumeScalar,
+            scope: scope.value,
+            element: UInt32(channel)
+        ))
+    }
     
-//    kAudioDevicePropertyJackIsConnected                                 = 'jack',
-//    kAudioDevicePropertyVolumeScalar                                    = 'volm',
-//    kAudioDevicePropertyVolumeDecibels                                  = 'vold',
+    public func setVolume(for scope: AudioScope, channel: Int, to value: Double) throws {
+        try setFloat32(
+            for: kAudioDevicePropertyVolumeScalar,
+            scope: scope.value,
+            element: UInt32(channel),
+            to: Float32(value)
+        )
+    }
+    
+    public func getDecibels(for direction: AudioDirection, channel: Int) throws -> Double {
+        Double(try getFloat32(
+            for: kAudioDevicePropertyVolumeDecibels,
+            scope: AudioObjectPropertyScope(direction.rawValue),
+            element: AudioObjectPropertyElement(channel)
+        ))
+    }
+    
+    public func setDecibels(for direction: AudioDirection, channel: Int, to value: Double) throws {
+        try setFloat32(
+            for: kAudioDevicePropertyVolumeDecibels,
+            scope: AudioObjectPropertyScope(direction.rawValue),
+            element: AudioObjectPropertyElement(channel),
+            to: Float32(value)
+        )
+    }
+    
 //    kAudioDevicePropertyVolumeRangeDecibels                             = 'vdb#',
 //    kAudioDevicePropertyVolumeScalarToDecibels                          = 'v2db',
 //    kAudioDevicePropertyVolumeDecibelsToScalar                          = 'db2v',
+    
 //    kAudioDevicePropertyStereoPan                                       = 'span',
 //    kAudioDevicePropertyStereoPanChannels                               = 'spn#',
+    
 //    kAudioDevicePropertyMute                                            = 'mute',
 //    kAudioDevicePropertySolo                                            = 'solo',
 //    kAudioDevicePropertyPhantomPower                                    = 'phan',
@@ -274,14 +321,17 @@ class AudioDevice: AudioObject {
 //    kAudioDevicePropertyClipLight                                       = 'clip',
 //    kAudioDevicePropertyTalkback                                        = 'talb',
 //    kAudioDevicePropertyListenback                                      = 'lsnb',
+    
 //    kAudioDevicePropertyDataSource                                      = 'ssrc',
 //    kAudioDevicePropertyDataSources                                     = 'ssc#',
 //    kAudioDevicePropertyDataSourceNameForIDCFString                     = 'lscn',
 //    kAudioDevicePropertyDataSourceKindForID                             = 'ssck',
+    
 //    kAudioDevicePropertyClockSource                                     = 'csrc',
 //    kAudioDevicePropertyClockSources                                    = 'csc#',
 //    kAudioDevicePropertyClockSourceNameForIDCFString                    = 'lcsn',
 //    kAudioDevicePropertyClockSourceKindForID                            = 'csck',
+    
 //    kAudioDevicePropertyPlayThru                                        = 'thru',
 //    kAudioDevicePropertyPlayThruSolo                                    = 'thrs',
 //    kAudioDevicePropertyPlayThruVolumeScalar                            = 'mvsc',
@@ -294,12 +344,15 @@ class AudioDevice: AudioObject {
 //    kAudioDevicePropertyPlayThruDestination                             = 'mdds',
 //    kAudioDevicePropertyPlayThruDestinations                            = 'mdd#',
 //    kAudioDevicePropertyPlayThruDestinationNameForIDCFString            = 'mddc',
+    
 //    kAudioDevicePropertyChannelNominalLineLevel                         = 'nlvl',
 //    kAudioDevicePropertyChannelNominalLineLevels                        = 'nlv#',
 //    kAudioDevicePropertyChannelNominalLineLevelNameForIDCFString        = 'lcnl',
+    
 //    kAudioDevicePropertyHighPassFilterSetting                           = 'hipf',
 //    kAudioDevicePropertyHighPassFilterSettings                          = 'hip#',
 //    kAudioDevicePropertyHighPassFilterSettingNameForIDCFString          = 'hipl',
+    
 //    kAudioDevicePropertySubVolumeScalar                                 = 'svlm',
 //    kAudioDevicePropertySubVolumeDecibels                               = 'svld',
 //    kAudioDevicePropertySubVolumeRangeDecibels                          = 'svd#',

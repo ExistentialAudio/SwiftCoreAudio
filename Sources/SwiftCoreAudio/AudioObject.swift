@@ -263,6 +263,35 @@ class AudioObject {
         let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
         guard status == noErr else { throw AudioError(status: status) }
     }
+    
+    func getFloat32(
+        for selector: AudioObjectPropertySelector,
+        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
+        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
+        qualifier: String? = nil
+    ) throws -> Float32 {
+        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
+        var dataSize = UInt32(MemoryLayout<Float32>.stride)
+        var data = Float32()
+        var qualifierData = qualifier as CFString?
+        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
+        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+        guard status == noErr else { throw AudioError(status: status) }
+        return data
+    }
+    
+    func setFloat32(
+        for selector: AudioObjectPropertySelector,
+        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
+        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
+        to float32: Float32
+    ) throws {
+        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
+        let dataSize = UInt32(MemoryLayout<Float32>.stride)
+        var data = float32
+        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
+        guard status == noErr else { throw AudioError(status: status) }
+    }
 
     
     func getDoubles(
