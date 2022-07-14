@@ -8,6 +8,14 @@
 import Foundation
 import CoreAudio
 
+protocol AudioDataType {
+    
+}
+
+extension UInt32 {
+    
+}
+
 class AudioObject {
     
     let audioObjectID: AudioObjectID
@@ -16,11 +24,15 @@ class AudioObject {
         self.audioObjectID = audioObjectID
     }
     
-    public var name: String {
-        get throws {
-            try getString(for: kAudioObjectPropertyName)
-        }
-    }
+//    public lazy var name = try? getString(for: kAudioObjectPropertyName)
+//
+//    public var name: Result<String, Error> {
+//        get {
+//            return .success(getString(for: kAudioObjectPropertyName))
+//        }
+//    }
+    
+    
     
     public func identify(to name: Bool) throws {
         try setUInt32(for: kAudioObjectPropertyIdentify, to: name ? 0 : 1)

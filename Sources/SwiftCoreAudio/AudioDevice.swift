@@ -76,6 +76,10 @@ class AudioDevice: AudioObject {
         }
     }
     
+    public func setCanBeSystemDevice(to value: Bool) throws {
+        try setUInt32(for: kAudioDevicePropertyDeviceCanBeDefaultDevice, scope: kAudioDevicePropertyScopeOutput, element: 0, to: value ? 1 : 0)
+    }
+    
     public var latency: Int {
         get throws {
             try Int(getUInt32(for: kAudioDevicePropertyLatency))
