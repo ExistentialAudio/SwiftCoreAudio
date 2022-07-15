@@ -23,6 +23,7 @@ enum AudioError: LocalizedError {
     case audioDeviceUnsupportedFormatError
     case audioDevicePermissionsError
     case audioObjectUnknownUniqueID
+    case notSupported
     
     init(status: OSStatus) {
         switch status {

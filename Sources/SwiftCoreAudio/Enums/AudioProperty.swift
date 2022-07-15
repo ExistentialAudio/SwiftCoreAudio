@@ -7,6 +7,11 @@
 
 import Foundation
 
-enum AudioProperty {
-    
+protocol AudioProperty {
+    var value: UInt32 {
+        get
+    }
+    var type: AudioPropertyType {
+        get
+    }
 }
