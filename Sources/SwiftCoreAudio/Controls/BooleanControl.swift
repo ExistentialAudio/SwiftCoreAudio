@@ -10,9 +10,5 @@ import CoreAudio
 
 class BooleanControl: Control {
     
-    public var value: Bool {
-        get throws {
-            try getUInt32(for: kAudioBooleanControlPropertyValue) != 0
-        }
-    }
+    public var value: Bool?
 }

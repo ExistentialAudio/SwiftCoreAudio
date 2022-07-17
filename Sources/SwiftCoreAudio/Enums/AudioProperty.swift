@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol AudioProperty {
+public protocol AudioProperty {
     var value: UInt32 {
         get
     }

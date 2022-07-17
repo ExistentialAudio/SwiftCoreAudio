@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-class EndpointDevice {
+public class EndpointDevice {
     
 
     

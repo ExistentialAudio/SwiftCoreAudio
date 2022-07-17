@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-enum AudioObjectClass {
+public enum AudioObjectClass {
     case audioSystemObject
     case audioPlugIn
     case audioTransportManager

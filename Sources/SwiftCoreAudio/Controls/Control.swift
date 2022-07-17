@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-enum Scope {
+public enum Scope {
     case input
     case output
     case playThrough
@@ -28,17 +28,9 @@ enum Scope {
     }
 }
 
-class Control: AudioObject {
+public class Control: AudioObject {
     
-    public var scope: Scope {
-        get throws {
-            try Scope(value: getUInt32(for: kAudioControlPropertyScope))
-        }
-    }
+    public var scope: Scope?
     
-    public var element: Int {
-        get throws {
-            Int(try getUInt32(for: kAudioControlPropertyElement))
-        }
-    }
+    public var channel: Int?
 }

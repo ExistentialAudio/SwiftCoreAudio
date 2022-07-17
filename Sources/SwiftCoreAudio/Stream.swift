@@ -11,59 +11,23 @@ import CoreAudio
 
 
 
-class Stream: AudioObject {
+public class Stream: AudioObject {
 
-    public var isActive: Bool {
-        get throws {
-            try getUInt32(for: kAudioStreamPropertyIsActive) == 0 ? false : true
-        }
-    }
+    public var isActive: Bool?
     
-    public var direction: AudioDirection {
-        get throws {
-            AudioDirection(value: try getUInt32(for: kAudioStreamPropertyDirection))
-        }
-    }
+    public var direction: AudioDirection?
     
-    public var terminalType: TerminalType {
-        get throws {
-            TerminalType(value: try getUInt32(for: kAudioStreamPropertyDirection))
-        }
-    }
+    public var terminalType: TerminalType?
 
-    public var startingChannel: Int {
-        get throws {
-            Int(try getUInt32(for: kAudioStreamPropertyStartingChannel))
-        }
-    }
+    public var startingChannel: Int?
     
-    public var latency: Int {
-        get throws {
-            Int(try getUInt32(for: kAudioStreamPropertyLatency))
-        }
-    }
+    public var latency: Int?
 
-    public var virtualFormat: AudioStreamBasicDescription {
-        get throws {
-            try getAudioStreamBasicDescription(for: kAudioStreamPropertyVirtualFormat)
-        }
-    }
+    public var virtualFormat: AudioStreamBasicDescription?
     
-    public var virtualFormats: [AudioStreamBasicDescription] {
-        get throws {
-            try getAudioStreamBasicDescriptions(for: kAudioStreamPropertyAvailableVirtualFormats)
-        }
-    }
+    public var virtualFormats: [AudioStreamBasicDescription]?
     
-    public var physicalFormat: AudioStreamBasicDescription {
-        get throws {
-            try getAudioStreamBasicDescription(for: kAudioStreamPropertyPhysicalFormat)
-        }
-    }
+    public var physicalFormat: AudioStreamBasicDescription?
     
-    public var phyicalFormats: [AudioStreamBasicDescription] {
-        get throws {
-            try getAudioStreamBasicDescriptions(for: kAudioStreamPropertyAvailablePhysicalFormats)
-        }
-    }
+    public var phyicalFormats: [AudioStreamBasicDescription]?
 }

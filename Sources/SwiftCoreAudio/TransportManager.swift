@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-class TransportManager: AudioObject {
+public class TransportManager: AudioObject {
     
 //    kAudioTransportManagerClassID   = 'trpm'
     

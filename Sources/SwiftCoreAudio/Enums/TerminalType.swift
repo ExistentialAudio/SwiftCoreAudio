@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-enum TerminalType {
+public enum TerminalType {
     case unknown
     case line
     case digitalAudioInterface

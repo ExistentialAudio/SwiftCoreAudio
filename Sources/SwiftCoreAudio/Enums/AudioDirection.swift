@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-enum AudioDirection: Int {
+public enum AudioDirection: Int {
     case input = 1
     case output = 0
     case unknown = -1
@@ -25,7 +25,7 @@ enum AudioDirection: Int {
     }
 }
 
-enum AudioScope {
+public enum AudioScope {
     case global
     case input
     case output

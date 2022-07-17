@@ -16,102 +16,71 @@ extension UInt32 {
     
 }
 
-class AudioObject {
+public class AudioObject: ObservableObject {
     
     let audioObjectID: AudioObjectID
     
+    @Published public var name: String?
+    
+    @Published public var identifyIsEnabled: Bool?
+    
+    @Published public var manufacturer: String?
+
+    @Published public var elementName: String?
+
+    @Published public var elementNumberName: String?
+ 
+    @Published public var serialNumber: String?
+
+    @Published public var firmwareVersion: String?
+ 
+    @Published public var modelName: String?
+    
+    @Published public var ownedObjects: [AudioObject]?
+    
+    @Published public var bassAudioClass: AudioObjectClass?
+
+    @Published public var audioClass: AudioObjectClass?
+
+    @Published public var owner: AudioObject?
+    
     public init(audioObjectID: AudioObjectID) {
+        
         self.audioObjectID = audioObjectID
-    }
-    
-//    public lazy var name = try? getString(for: kAudioObjectPropertyName)
-//
-//    public var name: Result<String, Error> {
-//        get {
-//            return .success(getString(for: kAudioObjectPropertyName))
-//        }
-//    }
-    
-    
-    
-    public func identify(to name: Bool) throws {
-        try setUInt32(for: kAudioObjectPropertyIdentify, to: name ? 0 : 1)
-    }
-    
-    public var manufacturer: String {
-        get throws {
-            try getString(for: kAudioObjectPropertyManufacturer)
-        }
-    }
+        
+        getProperties()
 
-    public var elementName: String {
-        get throws {
-            try getString(for: kAudioObjectPropertyElementName)
-        }
-    }
-
-    public var elementNumberName: String {
-        get throws {
-            try getString(for: kAudioObjectPropertyElementNumberName)
-        }
-    }
- 
-    public var serialNumber: String {
-        get throws {
-            try getString(for: kAudioObjectPropertySerialNumber)
-        }
-    }
-
-    public var firmwareVersion: String {
-        get throws {
-            try getString(for: kAudioObjectPropertyFirmwareVersion)
-        }
-    }
- 
-    public var modelName: String {
-        get throws {
-            try getString(for: kAudioObjectPropertyModelName)
-        }
     }
     
-    public func getOwnedObjects() throws -> [AudioObject] {
-        try getUInt32s(for: kAudioObjectPropertyOwnedObjects).map { AudioObject(audioObjectID: $0) }
-    }
-    
-    public var bassClass: AudioObjectClass {
-        get throws {
-            AudioObjectClass(classID: try getUInt32(for: kAudioObjectPropertyBaseClass))
-        }
-    }
-
-    public var classType: AudioObjectClass {
-        get throws {
-            AudioObjectClass(classID: try getUInt32(for: kAudioObjectPropertyClass))
-        }
-    }
-
-    public var owner: AudioObject {
-        get throws {
-            AudioObject(audioObjectID: try getUInt32(for: kAudioObjectPropertyOwner))
-        }
-    }
-    
-    func hasProperty(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain
-    ) -> Bool {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        return AudioObjectHasProperty(audioObjectID, &audioObjectPropertyAddress)
+    func getProperties() {
+        
+        name = try? getData(property: AudioObjectProperty.Name) as? String
+        
+        manufacturer = try? getData(property: AudioObjectProperty.Manufacturer) as? String
+        
+        elementName = try? getData(property: AudioObjectProperty.ElementName) as? String
+        
+        elementNumberName = try? getData(property: AudioObjectProperty.ElementNumberName) as? String
+        
+        serialNumber = try? getData(property: AudioObjectProperty.SerialNumber) as? String
+        
+        firmwareVersion = try? getData(property: AudioObjectProperty.FirmwareVersion) as? String
+        
+        modelName = try? getData(property: AudioObjectProperty.ModelName) as? String
+        
+        ownedObjects = try? getData(property: AudioObjectProperty.OwnedObjects) as? [AudioObject]
+        
+        bassAudioClass = try? AudioObjectClass(classID: getData(property: AudioObjectProperty.BaseClass) as! UInt32); #warning ("Don't use !")
+        
+        audioClass = try? AudioObjectClass(classID: getData(property: AudioObjectProperty.Class) as! UInt32); #warning ("Don't use !")
+        
+        owner = try? getData(property: AudioObjectProperty.OwnedObjects) as? AudioObject
+        
+        identifyIsEnabled = try? getData(property: AudioObjectProperty.Identify) as? Int != 0
     }
     
     
-    
-    
-    
-    
-    
-    func has(
+    func has (
         property: AudioProperty,
         scope: AudioScope = .global,
         element: Int = 0
@@ -124,24 +93,28 @@ class AudioObject {
         return AudioObjectHasProperty(audioObjectID, &audioObjectPropertyAddress)
     }
     
-    func isSettable(
+    func isSettable (
         property: AudioProperty,
         scope: AudioScope = .global,
-        element: Int = 0
+        channel: Int = 0
     ) throws -> Bool {
         var audioObjectPropertyAddress = AudioObjectPropertyAddress(
             mSelector: property.value,
             mScope: scope.value,
-            mElement: AudioObjectPropertyElement(element)
+            mElement: AudioObjectPropertyElement(channel)
         )
         var isSettable = DarwinBoolean(booleanLiteral: false)
         let status = AudioObjectIsPropertySettable(audioObjectID, &audioObjectPropertyAddress, &isSettable)
-        guard status == noErr else { throw AudioError(status: status) }
+        guard status == noErr else {
+            let error = AudioError(status: status)
+            print("AudioObjectID: \(audioObjectID) (\(String(describing: name))) isSettable(\(property), \(scope), \(channel)) threw \(error)")
+            throw error
+        }
         return isSettable.boolValue
     }
     
     
-    func getDataSize(
+    func getDataSize (
         property: AudioProperty,
         scope: AudioScope = .global,
         channel: Int = 0,
@@ -169,7 +142,11 @@ class AudioObject {
             &qualifierData,
             &dataSize
         )
-        guard status == noErr else { throw AudioError(status: status) }
+        guard status == noErr else {
+            let error = AudioError(status: status)
+            print("AudioObjectID: \(audioObjectID) (\(String(describing: name))) isSettable(\(property), \(scope), \(channel), \(String(describing: qualifier))) threw \(error)")
+            throw error
+        }
         return dataSize
     }
     
@@ -184,49 +161,6 @@ class AudioObject {
             mScope: scope.value,
             mElement: UInt32(channel)
         )
-        var dataSize = try getDataSize(property: property, scope: scope, channel: channel, qualifier: qualifier)
-        
-        
-        var data: Any = ""
-        
-        switch property.type {
-        case .UInt32:
-            print("")
-        case .CFString:
-            data = "" as CFString
-        case .UInt32Array:
-            data = [UInt32](
-                repeating: 0,
-                count: Int(dataSize) / MemoryLayout<UInt32>.stride
-            )
-        case .Int32:
-            data = Int32()
-        case .Float32:
-            data = Float32()
-        case .Double:
-            data = Double()
-        case .DoubleArray:
-            data = [Double](
-                repeating: 0,
-                count: Int(dataSize) / MemoryLayout<Double>.stride
-            )
-        case .URL:
-            data = URL(fileURLWithPath: "") as CFURL
-        case .AudioChannelLayout:
-            data = AudioChannelLayout()
-        case .AudioStreamBasicDescription:
-            data = AudioStreamBasicDescription()
-        case .AudioStreamBasicDescriptionArray:
-            data = [AudioStreamBasicDescription](
-                repeating: AudioStreamBasicDescription(),
-                count: Int(dataSize) / MemoryLayout<AudioStreamBasicDescription>.stride
-            )
-        case .AudioBufferList:
-            data = AudioBufferList()
-        default:
-            throw AudioError.notSupported
-        }
-
         
         var qualifierDataSize = UInt32(0)
         var qualifierData = "" as CFString
@@ -235,410 +169,98 @@ class AudioObject {
             qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
             qualifierData = qualifier as CFString
         }
+        var returnData: Any = ""
         
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    
-    
-    
-    
-    
-    func isPropertySettable(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain
-    ) throws -> Bool {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var isSettable = DarwinBoolean(booleanLiteral: false)
-        let status = AudioObjectIsPropertySettable(audioObjectID, &audioObjectPropertyAddress, &isSettable)
-        guard status == noErr else { throw AudioError(status: status) }
-        return isSettable.boolValue
-    }
+        var dataSize = try getDataSize(property: property, scope: scope, channel: channel, qualifier: qualifier)
+        
+        var status = noErr
 
-    func getDataSize(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> UInt32 {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(0)
-        var qualifierData = qualifier as CFString?
-        let status = AudioObjectGetPropertyDataSize(audioObjectID, &audioObjectPropertyAddress, UInt32(MemoryLayout<CFString>.stride), &qualifierData, &dataSize)
-        guard status == noErr else { throw AudioError(status: status) }
-        return dataSize
-    }
-    
-    
-    
-    func getString(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain
-    ) throws -> String {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = try getDataSize(for: selector, scope: scope, element: element)
-        var data = "" as CFString
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data as String
-    }
-    
-    func setString(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to string: String
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<CFString>.stride)
-        var data = string as CFString
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
-    
-    func getInt32(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> Int32 {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(MemoryLayout<Int32>.stride)
-        var data = Int32()
-        var qualifierData = qualifier as CFString?
-        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    func setInt32(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to int: Int32
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<Int32>.stride)
-        var data = int
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
+        switch property.type {
+            
+        case .UInt32:
+            var data = UInt32()
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .CFString:
+            var data = "" as CFString
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .UInt32Array:
+            var data = [UInt32](
+                repeating: 0,
+                count: Int(dataSize) / MemoryLayout<UInt32>.stride
+            )
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .Int32:
+            var data = Int32()
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .Float32:
+            var data = Float32()
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .Double:
+            var data = Double()
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .DoubleArray:
+            var data = [Double](
+                repeating: 0,
+                count: Int(dataSize) / MemoryLayout<Double>.stride
+            )
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .URL:
+            var data = URL(fileURLWithPath: "") as CFURL
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .AudioChannelLayout:
+            var data = AudioChannelLayout()
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .AudioStreamBasicDescription:
+            var data = AudioStreamBasicDescription()
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .AudioStreamBasicDescriptionArray:
+            var data = [AudioStreamBasicDescription](
+                repeating: AudioStreamBasicDescription(),
+                count: Int(dataSize) / MemoryLayout<AudioStreamBasicDescription>.stride
+            )
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
+            
+        case .AudioBufferList:
+            var data = AudioBufferList()
+            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            returnData = data
 
-    func getUInt32(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> UInt32 {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(MemoryLayout<UInt32>.stride)
-        var data = UInt32()
-        var qualifierData = qualifier as CFString?
-        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
+            
+        default:
+            throw AudioError.notSupported
+        }
+        
+        guard status == noErr else {
+            let error = AudioError(status: status)
+            print("AudioObjectID: \(audioObjectID) (\(String(describing: name))) isSettable(\(property), \(scope), \(channel), \(String(describing: qualifier))) threw \(error)")
+            throw error
+        }
+        return returnData
     }
-    
-    func setUInt32(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to int: UInt32
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<UInt32>.stride)
-        var data = int
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
-    
-    func getUInt32s(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain
-    ) throws -> [UInt32] {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = try getDataSize(for: selector, scope: scope, element: element)
-        var data = [UInt32](repeating: 0, count: Int(dataSize) / MemoryLayout<UInt32>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    func setUInt32s(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to ints: [UInt32]
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<UInt32>.stride * ints.count)
-        var data = ints
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
-    
-    
-    func getDouble(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> Float64 {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(MemoryLayout<Float64>.stride)
-        var data = Float64()
-        var qualifierData = qualifier as CFString?
-        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    func setDouble(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to float64: Float64
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<Float64>.stride)
-        var data = float64
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
-    
-    func getFloat32(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> Float32 {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(MemoryLayout<Float32>.stride)
-        var data = Float32()
-        var qualifierData = qualifier as CFString?
-        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    func setFloat32(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to float32: Float32
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<Float32>.stride)
-        var data = float32
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
-
-    
-    func getDoubles(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain
-    ) throws -> [Float64] {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = try getDataSize(for: selector, scope: scope, element: element)
-        var data = [Float64](repeating: 0, count: Int(dataSize) / MemoryLayout<Float64>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    func setDoubles(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to float64: [Float64]
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<Float64>.stride * float64.count)
-        var data = float64
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
-
-    func getURL(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> URL {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(MemoryLayout<CFURL>.stride)
-        var data = URL(fileURLWithPath: "") as CFURL
-        var qualifierData = qualifier as CFString?
-        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data as URL
-    }
-    
-    func setURL(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to url: URL
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<Float64>.stride)
-        var data = url as CFURL
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
-    
-    func getAudioChannelLayout(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> AudioChannelLayout {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(MemoryLayout<AudioChannelLayout>.stride)
-        var data = AudioChannelLayout()
-        var qualifierData = qualifier as CFString?
-        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    func setAudioChannelLayout(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to audioChannelLayout: AudioChannelLayout
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<AudioChannelLayout>.stride)
-        var data = audioChannelLayout
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
-    
-    func getAudioBufferList(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> AudioBufferList {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(MemoryLayout<AudioBufferList>.stride)
-        var data = AudioBufferList()
-        var qualifierData = qualifier as CFString?
-        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    func setAudioBufferList(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to audioBufferList: AudioBufferList
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<AudioBufferList>.stride)
-        var data = audioBufferList
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
-    
-    func getAudioHardwareIOProcStreamUsage(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> AudioHardwareIOProcStreamUsage {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(MemoryLayout<AudioHardwareIOProcStreamUsage>.stride)
-        var data = AudioHardwareIOProcStreamUsage(mIOProc: &dataSize, mNumberStreams: 0, mStreamIsOn: 0)
-        var qualifierData = qualifier as CFString?
-        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    @available(macOS 11, *)
-    func getWorkGroup (
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> WorkGroup {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(MemoryLayout<WorkGroup>.stride)
-        var data = os_workgroup_t(__name: nil, port: 0)
-        var qualifierData = qualifier as CFString?
-        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data!
-    }
-    
-    func getAudioStreamBasicDescription(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        qualifier: String? = nil
-    ) throws -> AudioStreamBasicDescription {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = UInt32(MemoryLayout<AudioStreamBasicDescription>.stride)
-        var data = AudioStreamBasicDescription()
-        var qualifierData = qualifier as CFString?
-        let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    func getAudioStreamBasicDescriptions(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain
-    ) throws -> [AudioStreamBasicDescription] {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        var dataSize = try getDataSize(for: selector, scope: scope, element: element)
-        var data = [AudioStreamBasicDescription](repeating: AudioStreamBasicDescription(), count: Int(dataSize) / MemoryLayout<AudioStreamBasicDescription>.stride)
-        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-        return data
-    }
-    
-    func setAudioStreamBasicDescriptions(
-        for selector: AudioObjectPropertySelector,
-        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-        to audioStreamBasicDescriptions: [AudioStreamBasicDescription]
-    ) throws {
-        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-        let dataSize = UInt32(MemoryLayout<AudioStreamBasicDescription>.stride * audioStreamBasicDescriptions.count)
-        var data = audioStreamBasicDescriptions
-        let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
-        guard status == noErr else { throw AudioError(status: status) }
-    }
-
-//    AudioObjectAddPropertyListener
-//    AudioObjectRemovePropertyListener
-//    AudioObjectAddPropertyListenerBlock
-//    AudioObjectRemovePropertyListenerBlock
 }
 
-enum AudioPropertyType: CaseIterable {
+public enum AudioPropertyType: CaseIterable {
     case CFString
     case UInt32
     case UInt32Array
@@ -656,7 +278,7 @@ enum AudioPropertyType: CaseIterable {
 
 }
 
-enum AudioObjectProperty: CaseIterable, AudioProperty {
+public enum AudioObjectProperty: CaseIterable, AudioProperty {
     case BaseClass
     case Class
     case Owner
@@ -671,7 +293,7 @@ enum AudioObjectProperty: CaseIterable, AudioProperty {
     case SerialNumber
     case FirmwareVersion
     
-    var value: UInt32 {
+    public var value: UInt32 {
         switch self {
         case .BaseClass:
             return kAudioObjectPropertyBaseClass
@@ -702,7 +324,7 @@ enum AudioObjectProperty: CaseIterable, AudioProperty {
         }
     }
     
-    var type: AudioPropertyType {
+    public var type: AudioPropertyType {
         switch self {
         case .BaseClass:
             return .UInt32
@@ -734,7 +356,7 @@ enum AudioObjectProperty: CaseIterable, AudioProperty {
     }
 }
 
-enum AudioPlugInProperty: CaseIterable, AudioProperty {
+public enum AudioPlugInProperty: CaseIterable, AudioProperty {
     case BundleID
     case DeviceList
     case TranslateUIDToDevice
@@ -746,7 +368,7 @@ enum AudioPlugInProperty: CaseIterable, AudioProperty {
     
 
     
-    var value: UInt32 {
+    public var value: UInt32 {
         switch self {
         case .BundleID:
             return kAudioPlugInPropertyBundleID
@@ -765,7 +387,7 @@ enum AudioPlugInProperty: CaseIterable, AudioProperty {
         }
     }
     
-    var type: AudioPropertyType {
+    public var type: AudioPropertyType {
         switch self {
         case .BundleID:
             return .CFString
@@ -785,12 +407,12 @@ enum AudioPlugInProperty: CaseIterable, AudioProperty {
     }
 }
 
-enum AudioTransportManagerProperty: CaseIterable {
+public enum AudioTransportManagerProperty: CaseIterable {
     case EndPointList
     case TranslateUIDToEndPoint
     case TransportType
     
-    var value: UInt32 {
+    public var value: UInt32 {
         switch self {
         case .EndPointList:
             return kAudioTransportManagerPropertyEndPointList
@@ -801,7 +423,7 @@ enum AudioTransportManagerProperty: CaseIterable {
         }
     }
     
-    var type: AudioPropertyType {
+    public var type: AudioPropertyType {
         switch self {
         case .EndPointList:
             return .UInt32Array
@@ -813,7 +435,7 @@ enum AudioTransportManagerProperty: CaseIterable {
     }
 }
 
-enum AudioBoxProperty: CaseIterable, AudioProperty {
+public enum AudioBoxProperty: CaseIterable, AudioProperty {
     case BoxUID
     case TransportType
     case HasAudio
@@ -825,7 +447,7 @@ enum AudioBoxProperty: CaseIterable, AudioProperty {
     case DeviceList
     case ClockDeviceList
     
-    var value: UInt32 {
+    public var value: UInt32 {
         switch self {
         case .BoxUID:
             return kAudioBoxPropertyBoxUID
@@ -850,7 +472,7 @@ enum AudioBoxProperty: CaseIterable, AudioProperty {
         }
     }
     
-    var type: AudioPropertyType {
+    public var type: AudioPropertyType {
         switch self {
         case .BoxUID:
             return .CFString
@@ -876,7 +498,7 @@ enum AudioBoxProperty: CaseIterable, AudioProperty {
     }
 }
 
-enum AudioDeviceProperty: CaseIterable, AudioProperty {
+public enum AudioDeviceProperty: CaseIterable, AudioProperty {
     case ConfigurationApplication
     case DeviceUID
     case ModelUID
@@ -898,7 +520,7 @@ enum AudioDeviceProperty: CaseIterable, AudioProperty {
     case PreferredChannelsForStereo// Settable
     case PreferredChannelLayout// Settable
     
-    var value: UInt32 {
+    public var value: UInt32 {
         switch self {
         case .ConfigurationApplication:
             return kAudioDevicePropertyConfigurationApplication
@@ -943,7 +565,7 @@ enum AudioDeviceProperty: CaseIterable, AudioProperty {
         }
     }
     
-    var type: AudioPropertyType {
+    public var type: AudioPropertyType {
         switch self {
         case .ConfigurationApplication:
             return .CFString
@@ -989,7 +611,7 @@ enum AudioDeviceProperty: CaseIterable, AudioProperty {
     }
 }
 
-enum AudioClockDeviceProperty: CaseIterable, AudioProperty {
+public enum AudioClockDeviceProperty: CaseIterable, AudioProperty {
     case DeviceUID
     case TransportType
     case ClockDomain
@@ -1000,7 +622,7 @@ enum AudioClockDeviceProperty: CaseIterable, AudioProperty {
     case NominalSampleRate
     case AvailableNominalSampleRates
     
-    var value: UInt32 {
+    public var value: UInt32 {
         switch self {
         case .DeviceUID:
             return kAudioClockDevicePropertyDeviceUID
@@ -1023,7 +645,7 @@ enum AudioClockDeviceProperty: CaseIterable, AudioProperty {
         }
     }
     
-    var type: AudioPropertyType {
+    public var type: AudioPropertyType {
         switch self {
         case .DeviceUID:
             return .UInt32
@@ -1047,12 +669,12 @@ enum AudioClockDeviceProperty: CaseIterable, AudioProperty {
     }
 }
 
-enum AudioEndpointProperty: CaseIterable, AudioProperty {
+public enum AudioEndpointProperty: CaseIterable, AudioProperty {
     case Composition
     case EndPointList
     case IsPrivate
     
-    var value: UInt32 {
+    public var value: UInt32 {
         switch self {
         case .Composition:
             return kAudioEndPointDevicePropertyComposition
@@ -1063,7 +685,7 @@ enum AudioEndpointProperty: CaseIterable, AudioProperty {
         }
     }
     
-    var type: AudioPropertyType {
+    public var type: AudioPropertyType {
         switch self {
         case .Composition:
             return .CFString
@@ -1075,7 +697,7 @@ enum AudioEndpointProperty: CaseIterable, AudioProperty {
     }
 }
 
-enum AudioStreamProperty: CaseIterable, AudioProperty {
+public enum AudioStreamProperty: CaseIterable, AudioProperty {
     case IsActive
     case Direction
     case TerminalType
@@ -1086,7 +708,7 @@ enum AudioStreamProperty: CaseIterable, AudioProperty {
     case PhysicalFormat
     case AvailablePhysicalFormats
     
-    var value: UInt32 {
+    public var value: UInt32 {
         switch self {
         case .IsActive:
             return kAudioStreamPropertyIsActive
@@ -1109,7 +731,7 @@ enum AudioStreamProperty: CaseIterable, AudioProperty {
         }
     }
     
-    var type: AudioPropertyType {
+    public var type: AudioPropertyType {
         switch self {
         case .IsActive:
             return .UInt32
@@ -1137,7 +759,7 @@ enum AudioControlProperty: CaseIterable, AudioProperty {
     case Scope
     case Element
     
-    var value: UInt32 {
+    public var value: UInt32 {
         switch self {
         case .Scope:
             return kAudioControlPropertyScope
@@ -1146,7 +768,7 @@ enum AudioControlProperty: CaseIterable, AudioProperty {
         }
     }
     
-    var type: AudioPropertyType {
+    public var type: AudioPropertyType {
         switch self {
         case .Scope:
             return .UInt32
@@ -1156,13 +778,13 @@ enum AudioControlProperty: CaseIterable, AudioProperty {
     }
 }
 
-enum AudioScope2: CaseIterable {
+public enum AudioScope2: CaseIterable {
     case Global
     case Input
     case Output
     case PlayThrough
 
-    var value: UInt32 {
+    public var value: UInt32 {
         switch self {
         case .Global:
             return kAudioObjectPropertyScopeGlobal
@@ -1176,7 +798,143 @@ enum AudioScope2: CaseIterable {
     }
 }
 
-protocol AudioQualifier {
+public enum AudioSystemProperty: CaseIterable, AudioProperty {
+    
+    case Devices
+    case DefaultInputDevice
+    case DefaultOutputDevice
+    case DefaultSystemOutputDevice
+    case TranslateUIDToDevice
+    case MixStereoToMono
+    case PlugInList
+    case TranslateBundleIDToPlugIn
+    case TransportManagerList
+    case TranslateBundleIDToTransportManager
+    case BoxList
+    case TranslateUIDToBox
+    case ClockDeviceList
+    case TranslateUIDToClockDevice
+    case ProcessIsMain
+    case IsInitingOrExiting
+    case UserIDChanged
+    case ProcessIsAudible
+    case SleepingIsAllowed
+    case UnloadingIsAllowed
+    case HogModeIsAllowed
+    case UserSessionIsActiveOrHeadless
+    case ServiceRestarted
+    case PowerHint
+    
+    public var value: UInt32 {
+        switch self {
+        case .Devices:
+            return kAudioHardwarePropertyDevices
+        case .DefaultInputDevice:
+            return kAudioHardwarePropertyDefaultInputDevice
+        case .DefaultOutputDevice:
+            return kAudioHardwarePropertyDefaultOutputDevice
+        case .DefaultSystemOutputDevice:
+            return kAudioHardwarePropertyDefaultSystemOutputDevice
+        case .TranslateUIDToDevice:
+            return kAudioHardwarePropertyTranslateUIDToDevice
+        case .MixStereoToMono:
+            return kAudioHardwarePropertyMixStereoToMono
+        case .PlugInList:
+            return kAudioHardwarePropertyPlugInList
+        case .TranslateBundleIDToPlugIn:
+            return kAudioHardwarePropertyTranslateBundleIDToPlugIn
+        case .TransportManagerList:
+            return kAudioHardwarePropertyTransportManagerList
+        case .TranslateBundleIDToTransportManager:
+            return kAudioHardwarePropertyTranslateBundleIDToTransportManager
+        case .BoxList:
+            return kAudioHardwarePropertyBoxList
+        case .TranslateUIDToBox:
+            return kAudioHardwarePropertyTranslateUIDToBox
+        case .ClockDeviceList:
+            return kAudioHardwarePropertyClockDeviceList
+        case .TranslateUIDToClockDevice:
+            return kAudioHardwarePropertyTranslateUIDToClockDevice
+        case .ProcessIsMain:
+            return kAudioHardwarePropertyProcessIsMain
+        case .IsInitingOrExiting:
+            return kAudioHardwarePropertyIsInitingOrExiting
+        case .UserIDChanged:
+            return kAudioHardwarePropertyUserIDChanged
+        case .ProcessIsAudible:
+            return kAudioHardwarePropertyProcessIsAudible
+        case .SleepingIsAllowed:
+            return kAudioHardwarePropertySleepingIsAllowed
+        case .UnloadingIsAllowed:
+            return kAudioHardwarePropertyUnloadingIsAllowed
+        case .HogModeIsAllowed:
+            return kAudioHardwarePropertyHogModeIsAllowed
+        case .UserSessionIsActiveOrHeadless:
+            return kAudioHardwarePropertyUserSessionIsActiveOrHeadless
+        case .ServiceRestarted:
+            return kAudioHardwarePropertyServiceRestarted
+        case .PowerHint:
+            return kAudioHardwarePropertyPowerHint
+        }
+    }
+    
+    public var type: AudioPropertyType {
+        switch self {
+        case .Devices:
+            return .UInt32Array
+        case .DefaultInputDevice:
+            return .UInt32
+        case .DefaultOutputDevice:
+            return .UInt32
+        case .DefaultSystemOutputDevice:
+            return .UInt32
+        case .TranslateUIDToDevice:
+            return .UInt32
+        case .MixStereoToMono:
+            return .UInt32
+        case .PlugInList:
+            return .UInt32Array
+        case .TranslateBundleIDToPlugIn:
+            return .UInt32
+        case .TransportManagerList:
+            return .UInt32Array
+        case .TranslateBundleIDToTransportManager:
+            return .UInt32
+        case .BoxList:
+            return .UInt32Array
+        case .TranslateUIDToBox:
+            return .UInt32
+        case .ClockDeviceList:
+            return .UInt32Array
+        case .TranslateUIDToClockDevice:
+            return .UInt32
+        case .ProcessIsMain:
+            return .UInt32
+        case .IsInitingOrExiting:
+            return .UInt32
+        case .UserIDChanged:
+            return .UInt32
+        case .ProcessIsAudible:
+            return .UInt32
+        case .SleepingIsAllowed:
+            return .UInt32
+        case .UnloadingIsAllowed:
+            return .UInt32
+        case .HogModeIsAllowed:
+            return .UInt32
+        case .UserSessionIsActiveOrHeadless:
+            return .UInt32
+        case .ServiceRestarted:
+            return .UInt32
+        case .PowerHint:
+            return .UInt32
+        }
+    }
+    
+    
+}
+
+public protocol AudioQualifier {
     
 }
 

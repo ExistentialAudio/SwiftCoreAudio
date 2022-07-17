@@ -10,17 +10,9 @@ import CoreAudio
 
 class LevelControl: Control {
     
-    public var scalarValue: Double {
-        get throws {
-            Double(try getFloat32(for: kAudioLevelControlPropertyScalarValue))
-        }
-    }
+    public var scalarValue: Double?
     
-    public var decibelValue: Double {
-        get throws {
-            Double(try getFloat32(for: kAudioLevelControlPropertyDecibelValue))
-        }
-    }
+    public var decibelValue: Double?
     
 //    public var decibelRange: ClosedRange {
 //        get throws {

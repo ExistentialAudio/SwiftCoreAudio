@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-class ClockDevice: AudioObject {
+public class ClockDevice: AudioObject {
     
     //    kAudioTransportManagerClassID   = 'trpm'
 //    kAudioBoxClassID    = 'abox'

@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-enum TransportType {
+public enum TransportType {
     case unknown
     case builtIn
     case aggregate
