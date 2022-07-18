@@ -107,7 +107,11 @@ public class AudioObject: ObservableObject {
         let status = AudioObjectIsPropertySettable(audioObjectID, &audioObjectPropertyAddress, &isSettable)
         guard status == noErr else {
             let error = AudioError(status: status)
-            print("AudioObjectID: \(audioObjectID) (\(String(describing: name))) isSettable(\(property), \(scope), \(channel)) threw \(error)")
+            
+            if error != .audioHardwareUnknownPropertyError {
+                print("AudioObjectID: \(audioObjectID) (\(String(describing: name))) isSettable(\(property), \(scope), \(channel)) threw \(error)")
+            }
+
             throw error
         }
         return isSettable.boolValue
@@ -144,7 +148,11 @@ public class AudioObject: ObservableObject {
         )
         guard status == noErr else {
             let error = AudioError(status: status)
-            print("AudioObjectID: \(audioObjectID) (\(String(describing: name))) isSettable(\(property), \(scope), \(channel), \(String(describing: qualifier))) threw \(error)")
+            
+            if error != .audioHardwareUnknownPropertyError {
+                print("AudioObjectID: \(audioObjectID) (\(String(describing: name))) isSettable(\(property), \(scope), \(channel), \(String(describing: qualifier))) threw \(error)")
+            }
+
             throw error
         }
         return dataSize
@@ -244,7 +252,6 @@ public class AudioObject: ObservableObject {
         case .AudioBufferList:
             var data = AudioBufferList()
             status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
-            returnData = data
 
             
         default:
@@ -253,7 +260,11 @@ public class AudioObject: ObservableObject {
         
         guard status == noErr else {
             let error = AudioError(status: status)
-            print("AudioObjectID: \(audioObjectID) (\(String(describing: name))) isSettable(\(property), \(scope), \(channel), \(String(describing: qualifier))) threw \(error)")
+            
+            if error != .audioHardwareUnknownPropertyError {
+                print("AudioObjectID: \(audioObjectID) (\(String(describing: name))) isSettable(\(property), \(scope), \(channel), \(String(describing: qualifier))) threw \(error)")
+            }
+
             throw error
         }
         return returnData

@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-public enum AudioError: LocalizedError {
+public enum AudioError: LocalizedError, Equatable {
     case unknownError(OSStatus)
     case audioHardwareNotRunningError
     case audioHardwareUnspecifiedError
