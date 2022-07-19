@@ -32,9 +32,9 @@ public class AudioDevice: AudioObject {
  
     public var latency: Int?
     
-    public var streams: [Stream]?
+    public var streams = [Stream]()
     
-    public var controls: [Control]?
+    public var controls = [Control]()
     
     public var safetyOffset: Int?
     
@@ -89,7 +89,7 @@ public class AudioDevice: AudioObject {
 
     public var isProcessMuted: Bool?
     
-    init?(uniqueID: String) {
+    public init?(uniqueID: String) {
         
         guard let audioDevice = AudioSystem.getAudioDevice(from: uniqueID) else {
             return nil
@@ -99,9 +99,11 @@ public class AudioDevice: AudioObject {
 
     }
     
-    public override init(audioObjectID: AudioObjectID) {
+    override init(audioObjectID: AudioObjectID) {
         super.init(audioObjectID: audioObjectID)
     }
+    
+    
     
 //
 //    // Implimented in AudioControls

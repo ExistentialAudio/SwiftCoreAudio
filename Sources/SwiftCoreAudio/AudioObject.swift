@@ -16,35 +16,39 @@ extension UInt32 {
     
 }
 
-public class AudioObject: ObservableObject {
+public class AudioObject: ObservableObject, Identifiable {
     
     let audioObjectID: AudioObjectID
     
-    @Published public var name: String?
+    @Published public var name: String? {
+        willSet {
+            
+        }
+    }
     
-    @Published public var identifyIsEnabled: Bool?
+    @Published public private(set) var identifyIsEnabled: Bool?
     
-    @Published public var manufacturer: String?
+    @Published public private(set) var manufacturer: String?
 
-    @Published public var elementName: String?
+    @Published public private(set) var elementName: String?
 
-    @Published public var elementNumberName: String?
+    @Published public private(set) var elementNumberName: String?
  
-    @Published public var serialNumber: String?
+    @Published public private(set) var serialNumber: String?
 
-    @Published public var firmwareVersion: String?
+    @Published public private(set) var firmwareVersion: String?
  
-    @Published public var modelName: String?
+    @Published public private(set) var modelName: String?
     
-    @Published public var ownedObjects: [AudioObject]?
+    @Published public private(set) var ownedObjects: [AudioObject]?
     
-    @Published public var bassAudioClass: AudioObjectClass?
+    @Published public private(set) var bassAudioClass: AudioObjectClass?
 
-    @Published public var audioClass: AudioObjectClass?
+    @Published public private(set) var audioClass: AudioObjectClass?
 
-    @Published public var owner: AudioObject?
+    @Published public private(set) var owner: AudioObject?
     
-    public init(audioObjectID: AudioObjectID) {
+    init(audioObjectID: AudioObjectID) {
         
         self.audioObjectID = audioObjectID
         
@@ -268,6 +272,70 @@ public class AudioObject: ObservableObject {
             throw error
         }
         return returnData
+    }
+    
+    #warning("Incomplete. Only works for UInt32")
+    func setData(
+        property: AudioProperty,
+        scope: AudioScope = .global,
+        channel: Int = 0,
+        qualifier: String? = nil,
+        data: Any
+    ) throws {
+        var audioObjectPropertyAddress = AudioObjectPropertyAddress(
+            mSelector: property.value,
+            mScope: scope.value,
+            mElement: UInt32(channel)
+        )
+        
+        var qualifierDataSize = UInt32(0)
+        var qualifierData = "" as CFString
+        
+        if let qualifier = qualifier {
+            qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
+            qualifierData = qualifier as CFString
+        }
+        
+        var status = noErr
+
+        switch data {
+        case is String:
+            let dataSize = UInt32(MemoryLayout<CFString>.stride)
+            if let data = data as? String {
+                var data = data as CFString
+                status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, dataSize, &data)
+            } else {
+                throw AudioError.notSupported
+            }
+        case is Int:
+            let dataSize = UInt32(MemoryLayout<UInt32>.stride)
+            if let data = data as? UInt32 {
+                var data = data
+                status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, dataSize, &data)
+            } else {
+                throw AudioError.notSupported
+            }
+        case is Bool:
+            let dataSize = UInt32(MemoryLayout<UInt32>.stride)
+            if let data = data as? Bool {
+                var data = data ? UInt32(1) : UInt32(0)
+                status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, dataSize, &data)
+            } else {
+                throw AudioError.notSupported
+            }
+        default:
+            throw AudioError.notSupported
+        }
+    
+        guard status == noErr else {
+            let error = AudioError(status: status)
+            
+            if error != .audioHardwareUnknownPropertyError {
+                print("AudioObjectID: \(audioObjectID) (\(String(describing: name))) isSettable(\(property), \(scope), \(channel), \(String(describing: qualifier))) threw \(error)")
+            }
+
+            throw error
+        }
     }
 }
 
