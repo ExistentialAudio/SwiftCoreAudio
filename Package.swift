@@ -13,6 +13,9 @@ let package = Package(
         .library(
             name: "SwiftCoreAudio",
             targets: ["SwiftCoreAudio"]),
+        .library(
+            name: "SwiftCoreAudioUI",
+            targets: ["SwiftCoreAudioUI"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -24,6 +27,9 @@ let package = Package(
         .target(
             name: "SwiftCoreAudio",
             dependencies: []),
+        .target(
+            name: "SwiftCoreAudioUI",
+            dependencies: ["SwiftCoreAudio"]),
         .testTarget(
             name: "SwiftCoreAudioTests",
             dependencies: ["SwiftCoreAudio"]),
