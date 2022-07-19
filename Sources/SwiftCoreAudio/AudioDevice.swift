@@ -232,3 +232,116 @@ public class AudioDevice: AudioObject {
 //    kAudioDevicePropertyIOStoppedAbnormally
 }
 
+
+public enum AudioDeviceProperty: CaseIterable, AudioProperty {
+    case ConfigurationApplication
+    case DeviceUID
+    case ModelUID
+    case TransportType
+    case RelatedDevices
+    case ClockDomain
+    case DeviceIsAlive
+    case DeviceIsRunning
+    case DeviceCanBeDefaultDevice
+    case DeviceCanBeDefaultSystemDevice
+    case Latency
+    case Streams
+    case ControlList
+    case SafetyOffset
+    case NominalSampleRate// Settable
+    case AvailableNominalSampleRates
+    case Icon
+    case IsHidden
+    case PreferredChannelsForStereo// Settable
+    case PreferredChannelLayout// Settable
+    
+    public var value: UInt32 {
+        switch self {
+        case .ConfigurationApplication:
+            return kAudioDevicePropertyConfigurationApplication
+        case .DeviceUID:
+            return kAudioDevicePropertyDeviceUID
+        case .ModelUID:
+            return kAudioDevicePropertyModelUID
+        case .TransportType:
+            return kAudioDevicePropertyTransportType
+        case .RelatedDevices:
+            return kAudioDevicePropertyRelatedDevices
+        case .ClockDomain:
+            return kAudioDevicePropertyClockDomain
+        case .DeviceIsAlive:
+            return kAudioDevicePropertyDeviceIsAlive
+        case .DeviceIsRunning:
+            return kAudioDevicePropertyDeviceIsRunning
+        case .DeviceCanBeDefaultDevice:
+            return kAudioDevicePropertyDeviceCanBeDefaultDevice
+        case .DeviceCanBeDefaultSystemDevice:
+            return kAudioDevicePropertyDeviceCanBeDefaultSystemDevice
+        case .Latency:
+            return kAudioDevicePropertyLatency
+        case .Streams:
+            return kAudioDevicePropertyStreams
+        case .ControlList:
+            return kAudioObjectPropertyControlList
+        case .SafetyOffset:
+            return kAudioDevicePropertySafetyOffset
+        case .NominalSampleRate:
+            return kAudioDevicePropertyNominalSampleRate
+        case .AvailableNominalSampleRates:
+            return kAudioDevicePropertyAvailableNominalSampleRates
+        case .Icon:
+            return kAudioDevicePropertyIcon
+        case .IsHidden:
+            return kAudioDevicePropertyIsHidden
+        case .PreferredChannelsForStereo:
+            return kAudioDevicePropertyPreferredChannelsForStereo
+        case .PreferredChannelLayout:
+            return kAudioDevicePropertyPreferredChannelLayout
+        }
+    }
+    
+    public var type: AudioPropertyType {
+        switch self {
+        case .ConfigurationApplication:
+            return .CFString
+        case .DeviceUID:
+            return .CFString
+        case .ModelUID:
+            return .CFString
+        case .TransportType:
+            return .UInt32
+        case .RelatedDevices:
+            return .UInt32Array
+        case .ClockDomain:
+            return .UInt32
+        case .DeviceIsAlive:
+            return .UInt32
+        case .DeviceIsRunning:
+            return .UInt32
+        case .DeviceCanBeDefaultDevice:
+            return .UInt32
+        case .DeviceCanBeDefaultSystemDevice:
+            return .UInt32
+        case .Latency:
+            return .UInt32
+        case .Streams:
+            return .UInt32Array
+        case .ControlList:
+            return .UInt32Array
+        case .SafetyOffset:
+            return .UInt32
+        case .NominalSampleRate:
+            return .Double
+        case .AvailableNominalSampleRates:
+            return .DoubleArray
+        case .Icon:
+            return .URL
+        case .IsHidden:
+            return .UInt32
+        case .PreferredChannelsForStereo:
+            return .Double
+        case .PreferredChannelLayout:
+            return .Double
+        }
+    }
+}

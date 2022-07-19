@@ -18,3 +18,31 @@ public class EndPoint: AudioDevice {
 //    #define kAudioEndPointOutputChannelsKey "channels-out"
 
 }
+
+public enum AudioEndpointProperty: CaseIterable, AudioProperty {
+    case Composition
+    case EndPointList
+    case IsPrivate
+    
+    public var value: UInt32 {
+        switch self {
+        case .Composition:
+            return kAudioEndPointDevicePropertyComposition
+        case .EndPointList:
+            return kAudioEndPointDevicePropertyEndPointList
+        case .IsPrivate:
+            return kAudioEndPointDevicePropertyIsPrivate
+        }
+    }
+    
+    public var type: AudioPropertyType {
+        switch self {
+        case .Composition:
+            return .CFString
+        case .EndPointList:
+            return .UInt32Array
+        case .IsPrivate:
+            return .UInt32
+        }
+    }
+}

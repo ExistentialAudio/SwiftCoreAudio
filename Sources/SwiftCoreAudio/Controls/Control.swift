@@ -34,3 +34,27 @@ public class Control: AudioObject {
     
     public var channel: Int?
 }
+
+
+enum AudioControlProperty: CaseIterable, AudioProperty {
+    case Scope
+    case Element
+    
+    public var value: UInt32 {
+        switch self {
+        case .Scope:
+            return kAudioControlPropertyScope
+        case .Element:
+            return kAudioControlPropertyElement
+        }
+    }
+    
+    public var type: AudioPropertyType {
+        switch self {
+        case .Scope:
+            return .UInt32
+        case .Element:
+            return .UInt32
+        }
+    }
+}

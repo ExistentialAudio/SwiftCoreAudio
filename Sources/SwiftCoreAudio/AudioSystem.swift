@@ -40,26 +40,66 @@ public class AudioSystem: AudioObject {
         }
     }
     
-    @Published public var processIsMain = false
+    @Published public private(set) var processIsMain = false
     
-    @Published public var isInitingOrExiting = false
+    @Published public private(set) var isInitingOrExiting = false
 
-    @Published public var processIsAudible = false
+    @Published public var processIsAudible = false {
+        didSet {
+            do {
+                try setData(property: AudioSystemProperty.ProcessIsAudible, data: processIsAudible)
+            } catch {
+                processIsAudible = oldValue
+            }
+        }
+    }
     
-    @Published public var sleepingIsAllowed = false
+    @Published public var sleepingIsAllowed = false {
+        didSet {
+            do {
+                try setData(property: AudioSystemProperty.SleepingIsAllowed, data: sleepingIsAllowed)
+            } catch {
+                sleepingIsAllowed = oldValue
+            }
+        }
+    }
     
-    @Published public var unloadingIsAllowed = false
+    @Published public var unloadingIsAllowed = false {
+        didSet {
+            do {
+                try setData(property: AudioSystemProperty.UnloadingIsAllowed, data: unloadingIsAllowed)
+            } catch {
+                unloadingIsAllowed = oldValue
+            }
+        }
+    }
     
-    @Published public var hogModeIsAllowed = false
+    @Published public var hogModeIsAllowed = false {
+        didSet {
+            do {
+                try setData(property: AudioSystemProperty.HogModeIsAllowed, data: hogModeIsAllowed)
+            } catch {
+                hogModeIsAllowed = oldValue
+            }
+        }
+    }
     
-    @Published public var userSessionIsActiveOrHeadless = false
+    @Published public private(set)  var userSessionIsActiveOrHeadless = false
 
     public enum PowerHint: Int {
         case none = 0
         case favorSavingPower
     }
 
-    @Published public var powerHint = PowerHint.none
+    @Published public var powerSaverIsEnabled = false {
+        didSet {
+            do {
+                try setData(property: AudioSystemProperty.HogModeIsAllowed, data: powerSaverIsEnabled)
+            } catch {
+                powerSaverIsEnabled = oldValue
+            }
+        }
+    }
     
     private override init(audioObjectID: AudioObjectID) {
         super.init(audioObjectID: audioObjectID)
@@ -138,10 +178,8 @@ public class AudioSystem: AudioObject {
             userSessionIsActiveOrHeadless = value != 0
         }
         
-        if let powerHintRawValue = try? getData(property: AudioSystemProperty.PowerHint) as? UInt32 {
-            if let powerHint = PowerHint(rawValue: Int(powerHintRawValue)) {
-                self.powerHint = powerHint
-            }
+        if let value = try? getData(property: AudioSystemProperty.PowerHint) as? UInt32 {
+            powerSaverIsEnabled = value != 0
         }
         
     }
@@ -225,4 +263,138 @@ public class AudioSystem: AudioObject {
 //
 //    }
 
+}
+
+public enum AudioSystemProperty: CaseIterable, AudioProperty {
+    
+    case Devices
+    case DefaultInputDevice
+    case DefaultOutputDevice
+    case DefaultSystemOutputDevice
+    case TranslateUIDToDevice
+    case MixStereoToMono
+    case PlugInList
+    case TranslateBundleIDToPlugIn
+    case TransportManagerList
+    case TranslateBundleIDToTransportManager
+    case BoxList
+    case TranslateUIDToBox
+    case ClockDeviceList
+    case TranslateUIDToClockDevice
+    case ProcessIsMain
+    case IsInitingOrExiting
+    case UserIDChanged
+    case ProcessIsAudible
+    case SleepingIsAllowed
+    case UnloadingIsAllowed
+    case HogModeIsAllowed
+    case UserSessionIsActiveOrHeadless
+    case ServiceRestarted
+    case PowerHint
+    
+    public var value: UInt32 {
+        switch self {
+        case .Devices:
+            return kAudioHardwarePropertyDevices
+        case .DefaultInputDevice:
+            return kAudioHardwarePropertyDefaultInputDevice
+        case .DefaultOutputDevice:
+            return kAudioHardwarePropertyDefaultOutputDevice
+        case .DefaultSystemOutputDevice:
+            return kAudioHardwarePropertyDefaultSystemOutputDevice
+        case .TranslateUIDToDevice:
+            return kAudioHardwarePropertyTranslateUIDToDevice
+        case .MixStereoToMono:
+            return kAudioHardwarePropertyMixStereoToMono
+        case .PlugInList:
+            return kAudioHardwarePropertyPlugInList
+        case .TranslateBundleIDToPlugIn:
+            return kAudioHardwarePropertyTranslateBundleIDToPlugIn
+        case .TransportManagerList:
+            return kAudioHardwarePropertyTransportManagerList
+        case .TranslateBundleIDToTransportManager:
+            return kAudioHardwarePropertyTranslateBundleIDToTransportManager
+        case .BoxList:
+            return kAudioHardwarePropertyBoxList
+        case .TranslateUIDToBox:
+            return kAudioHardwarePropertyTranslateUIDToBox
+        case .ClockDeviceList:
+            return kAudioHardwarePropertyClockDeviceList
+        case .TranslateUIDToClockDevice:
+            return kAudioHardwarePropertyTranslateUIDToClockDevice
+        case .ProcessIsMain:
+            return kAudioHardwarePropertyProcessIsMain
+        case .IsInitingOrExiting:
+            return kAudioHardwarePropertyIsInitingOrExiting
+        case .UserIDChanged:
+            return kAudioHardwarePropertyUserIDChanged
+        case .ProcessIsAudible:
+            return kAudioHardwarePropertyProcessIsAudible
+        case .SleepingIsAllowed:
+            return kAudioHardwarePropertySleepingIsAllowed
+        case .UnloadingIsAllowed:
+            return kAudioHardwarePropertyUnloadingIsAllowed
+        case .HogModeIsAllowed:
+            return kAudioHardwarePropertyHogModeIsAllowed
+        case .UserSessionIsActiveOrHeadless:
+            return kAudioHardwarePropertyUserSessionIsActiveOrHeadless
+        case .ServiceRestarted:
+            return kAudioHardwarePropertyServiceRestarted
+        case .PowerHint:
+            return kAudioHardwarePropertyPowerHint
+        }
+    }
+    
+    public var type: AudioPropertyType {
+        switch self {
+        case .Devices:
+            return .UInt32Array
+        case .DefaultInputDevice:
+            return .UInt32
+        case .DefaultOutputDevice:
+            return .UInt32
+        case .DefaultSystemOutputDevice:
+            return .UInt32
+        case .TranslateUIDToDevice:
+            return .UInt32
+        case .MixStereoToMono:
+            return .UInt32
+        case .PlugInList:
+            return .UInt32Array
+        case .TranslateBundleIDToPlugIn:
+            return .UInt32
+        case .TransportManagerList:
+            return .UInt32Array
+        case .TranslateBundleIDToTransportManager:
+            return .UInt32
+        case .BoxList:
+            return .UInt32Array
+        case .TranslateUIDToBox:
+            return .UInt32
+        case .ClockDeviceList:
+            return .UInt32Array
+        case .TranslateUIDToClockDevice:
+            return .UInt32
+        case .ProcessIsMain:
+            return .UInt32
+        case .IsInitingOrExiting:
+            return .UInt32
+        case .UserIDChanged:
+            return .UInt32
+        case .ProcessIsAudible:
+            return .UInt32
+        case .SleepingIsAllowed:
+            return .UInt32
+        case .UnloadingIsAllowed:
+            return .UInt32
+        case .HogModeIsAllowed:
+            return .UInt32
+        case .UserSessionIsActiveOrHeadless:
+            return .UInt32
+        case .ServiceRestarted:
+            return .UInt32
+        case .PowerHint:
+            return .UInt32
+        }
+    }
 }
