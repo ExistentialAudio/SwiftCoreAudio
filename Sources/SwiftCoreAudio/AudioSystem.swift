@@ -14,15 +14,15 @@ public class AudioSystem: AudioObject {
     
     public static let shared = AudioSystem(audioObjectID: AudioObjectID(kAudioObjectSystemObject))
      
-    @Published public var audioDevices = [AudioDevice]()
+    @Published public private(set) var audioDevices = [AudioDevice]()
 
-    @Published public var audioPlugIns = [AudioPlugIn]()
+    @Published public private(set) var audioPlugIns = [AudioPlugIn]()
 
-    @Published public var transportManagers = [TransportManager]()
+    @Published public private(set) var transportManagers = [TransportManager]()
 
-    @Published public var audioBoxes = [AudioBox]()
+    @Published public private(set) var audioBoxes = [AudioBox]()
 
-    @Published public var clockDevices = [ClockDevice]()
+    @Published public private(set) var clockDevices = [ClockDevice]()
 
     @Published public var defaultInputDevice: AudioDevice?
 
@@ -39,10 +39,6 @@ public class AudioSystem: AudioObject {
             }
         }
     }
-    
-    @Published public private(set) var processIsMain = false
-    
-    @Published public private(set) var isInitingOrExiting = false
 
     @Published public var processIsAudible = false {
         didSet {
@@ -84,13 +80,6 @@ public class AudioSystem: AudioObject {
         }
     }
     
-    @Published public private(set)  var userSessionIsActiveOrHeadless = false
-
-    public enum PowerHint: Int {
-        case none = 0
-        case favorSavingPower
-    }
-
     @Published public var powerSaverIsEnabled = false {
         didSet {
             do {
@@ -100,6 +89,14 @@ public class AudioSystem: AudioObject {
             }
         }
     }
+    
+    @Published public private(set) var processIsMain = false
+    
+    @Published public private(set) var isInitingOrExiting = false
+    
+    @Published public private(set)  var userSessionIsActiveOrHeadless = false
+
+
     
     private override init(audioObjectID: AudioObjectID) {
         super.init(audioObjectID: audioObjectID)

@@ -8,18 +8,12 @@
 import SwiftUI
 import SwiftCoreAudio
 
-struct AudioSystemView: View {
+public struct AudioSystemView: View {
     
     @StateObject var audioSystem = AudioSystem.shared
-    var body: some View {
+    
+    public var body: some View {
         VStack {
-
-            Group {
-                Text("Audio Plug Ins").bold()
-                ForEach(audioSystem.audioPlugIns) { AudioObjectView(audioObject: $0)}
-            }
-
-            Spacer()
             
             Group {
                 Text("Default Input: \(audioSystem.defaultInputDevice?.name ?? "None")")
@@ -44,10 +38,25 @@ struct AudioSystemView: View {
                 Text("Is Initing Or Exiting: \(audioSystem.isInitingOrExiting.description)")
                 Text("User Session Is Active Or Headless: \(audioSystem.userSessionIsActiveOrHeadless.description)")
             }
+            
+            Spacer()
+            
+            Group {
+                Text("Audio Plug Ins").bold()
+                ScrollView(.horizontal) {
+                    HStack {
+                        ForEach(audioSystem.audioPlugIns) { AudioPlugInView(audioPlugIn: $0)}
+                    }
+                }
+            }
 
         }
         .padding()
         .toggleStyle(.switch)
+    }
+    
+    public init() {
+        
     }
 }
 

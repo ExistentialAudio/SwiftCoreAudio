@@ -10,20 +10,52 @@ import CoreAudio
 
 public class AudioPlugIn: AudioObject {
     
-    public var bundleID: String?
+    @Published public private(set) var bundleID = ""
     
-    public var audioDevices: [AudioDevice]?
+    @Published public private(set) var audioDevices = [AudioDevice]()
     
-    public var audioBoxes: [AudioBox]?
+    @Published public private(set) var audioBoxes = [AudioBox]()
     
-    public var clockDevices: [ClockDevice]?
+    @Published public private(set) var clockDevices = [ClockDevice]()
     
-    // These are redundant. 
-    //kAudioPlugInPropertyTranslateUIDToDevice
-    //kAudioPlugInPropertyTranslateUIDToBox
-    //kAudioPlugInPropertyTranslateUIDToClockDevice
-//    kAudioPlugInCreateAggregateDevice   = 'cagg',
-//    kAudioPlugInDestroyAggregateDevice  = 'dagg'
+    public init?(bundleID: String) {
+        guard let plugIn = try? AudioSystem.getAudioPlugIn(from: bundleID) else {
+            return nil
+        }
+        super.init(audioObjectID: plugIn.audioObjectID)
+    }
+    
+    override init(audioObjectID: AudioObjectID) {
+        super.init(audioObjectID: audioObjectID)
+    }
+    
+    override func getProperties() {
+        super.getProperties()
+        
+        if let bundleID = try? getData(property: AudioPlugInProperty.BundleID) as? String {
+            self.bundleID = bundleID
+        }
+        
+        
+        if let audioObjectID = try? getData(property: AudioSystemProperty.Devices) as? [AudioDeviceID] {
+            self.audioDevices = audioObjectID.map({
+                AudioDevice(audioObjectID: $0)
+            })
+        }
+        
+        if let audioObjectID = try? getData(property: AudioSystemProperty.BoxList) as? [AudioDeviceID] {
+            self.audioBoxes = audioObjectID.map({
+                AudioBox(audioObjectID: $0)
+            })
+        }
+        
+        if let audioObjectID = try? getData(property: AudioSystemProperty.ClockDeviceList) as? [AudioDeviceID] {
+            self.clockDevices = audioObjectID.map({
+                ClockDevice(audioObjectID: $0)
+            })
+        }
+    }
+    
 }
 public enum AudioPlugInProperty: CaseIterable, AudioProperty {
     case BundleID

@@ -74,13 +74,19 @@ public class AudioObject: ObservableObject, Identifiable {
         
         ownedObjects = try? getData(property: AudioObjectProperty.OwnedObjects) as? [AudioObject]
         
-        bassAudioClass = try? AudioObjectClass(classID: getData(property: AudioObjectProperty.BaseClass) as! UInt32); #warning ("Don't use !")
+        if let audioClassID = try? getData(property: AudioObjectProperty.BaseClass) as? UInt32 {
+            bassAudioClass = AudioObjectClass(classID: audioClassID)
+        }
         
-        audioClass = try? AudioObjectClass(classID: getData(property: AudioObjectProperty.Class) as! UInt32); #warning ("Don't use !")
+        if let audioClassID = try? getData(property: AudioObjectProperty.Class) as? UInt32 {
+            audioClass = AudioObjectClass(classID: audioClassID)
+        }
         
         owner = try? getData(property: AudioObjectProperty.OwnedObjects) as? AudioObject
         
-        identifyIsEnabled = try? getData(property: AudioObjectProperty.Identify) as? Int != 0
+        if let value = try? getData(property: AudioObjectProperty.Identify) as? UInt32 {
+            identifyIsEnabled = value != 0
+        }
     }
     
     
@@ -274,7 +280,7 @@ public class AudioObject: ObservableObject, Identifiable {
         return returnData
     }
     
-    #warning("Incomplete. Only works for UInt32")
+    #warning("Incomplete. Only works for UInt32, Int, Bool")
     func setData(
         property: AudioProperty,
         scope: AudioScope = .global,

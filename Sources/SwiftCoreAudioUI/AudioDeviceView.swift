@@ -8,14 +8,18 @@
 import SwiftUI
 import SwiftCoreAudio
 
-struct AudioDeviceView: View {
+public struct AudioDeviceView: View {
     
     let audioDevice: AudioDevice
     
-    var body: some View {
+    public var body: some View {
         VStack {
             AudioObjectView(audioObject: audioDevice)
         }
+    }
+    
+    public init(audioDevice: AudioDevice) {
+        self.audioDevice = audioDevice
     }
 }
 
