@@ -74,6 +74,10 @@ public class AudioBox: AudioObject {
                 ClockDevice(audioObjectID: $0)
             })
         }
+        
+        if let value = try? getData(property: AudioBoxProperty.TransportType) as? UInt32 {
+            self.transportType = TransportType(value: value)
+        }
     }
     
 }
