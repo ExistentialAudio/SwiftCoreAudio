@@ -14,9 +14,9 @@ public struct AudioPlugInView: View {
     
     public var body: some View {
         VStack {
-            Text(audioPlugIn.bundleID).bold()
+            Text("BundleID: " + audioPlugIn.bundleID).bold()
             Group {
-                ForEach(audioPlugIn.audioBoxes) { AudioObjectView(audioObject: $0)}
+                ForEach(audioPlugIn.audioBoxes) { AudioBoxView(audioBox: $0)}
             }
         }
     }

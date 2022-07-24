@@ -48,6 +48,30 @@ public struct AudioSystemView: View {
                         ForEach(audioSystem.audioPlugIns) { AudioPlugInView(audioPlugIn: $0)}
                     }
                 }
+                Text("Audio Devices").bold()
+                ScrollView(.horizontal) {
+                    HStack {
+                        ForEach(audioSystem.audioDevices) { AudioDeviceView(audioDevice: $0)}
+                    }
+                }
+//                Text("Audio Transport Managers").bold()
+//                ScrollView(.horizontal) {
+//                    HStack {
+//                        ForEach(audioSystem.transportManagers) { AudioObjectView(audioObject: $0)}
+//                    }
+//                }
+//                Text("Audio Boxes").bold()
+//                ScrollView(.horizontal) {
+//                    HStack {
+//                        ForEach(audioSystem.audioBoxes) { AudioBoxView(audioBox: $0)}
+//                    }
+//                }
+//                Text("Audio Clocks").bold()
+//                ScrollView(.horizontal) {
+//                    HStack {
+//                        ForEach(audioSystem.audioClocks) { AudioClockView(audioClock: $0)}
+//                    }
+//                }
             }
 
         }

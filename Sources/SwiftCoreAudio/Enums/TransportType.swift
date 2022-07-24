@@ -8,7 +8,40 @@
 import Foundation
 import CoreAudio
 
-public enum TransportType {
+public enum TransportType: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .unknown:
+            return "Unknown"
+        case .builtIn:
+            return "BuiltIn"
+        case .aggregate:
+            return "Aggregate"
+        case .virtual:
+            return "Virtual"
+        case .PCI:
+            return "PCI"
+        case .USB:
+            return "USB"
+        case .fireWire:
+            return "FireWire"
+        case .bluetooth:
+            return "Bluetooth"
+        case .bluetoothLE:
+            return "BluetoothLE"
+        case .HDMI:
+            return "HDMI"
+        case .displayPort:
+            return "DisplayPort"
+        case .airPlay:
+            return "AirPlay"
+        case .AVB:
+            return "AVB"
+        case .thunderbolt:
+            return "Thunderbolt"
+        }
+    }
+    
     case unknown
     case builtIn
     case aggregate

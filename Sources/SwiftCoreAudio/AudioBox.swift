@@ -10,23 +10,31 @@ import CoreAudio
 
 public class AudioBox: AudioObject {
 
-    public var uniqueID = "Unknown"
+    @Published public private(set) var uniqueID = "Unknown"
     
-    public var transportType = TransportType.unknown
+    @Published public private(set) var transportType = TransportType.unknown
     
-    public var hasAudio = false
+    @Published public private(set) var hasAudio = false
     
-    public var hasVideo = false
+    @Published public private(set) var hasVideo = false
     
-    public var hasMIDI = false
+    @Published public private(set) var hasMIDI = false
     
-    public var isProtected = false
+    @Published public private(set) var isProtected = false
     
-    public var isAquired = false
+    @Published public var isAquired = false  {
+        didSet {
+            do {
+                try setData(property: AudioBoxProperty.Acquired, data: isAquired)
+            } catch {
+                isAquired = oldValue
+            }
+        }
+    }
  
-    public var audioDevices = [AudioDevice]()
+    @Published public private(set) var audioDevices = [AudioDevice]()
     
-    public var clockDevices = [ClockDevice]()
+    @Published public private(set) var clockDevices = [ClockDevice]()
     
     public init?(uniqueID: String) {
         guard let audioBox = try? AudioSystem.getAudioBox(from: uniqueID) else {
@@ -110,7 +118,7 @@ public enum AudioBoxProperty: CaseIterable, AudioProperty {
         case .Acquired:
             return kAudioBoxPropertyAcquired
         case .AcquisitionFailed:
-            return kAudioBoxPropertyAcquisitionFailed
+            return kAudioBoxPropertyAcquisitionFailed // Notification only
         case .DeviceList:
             return kAudioBoxPropertyDeviceList
         case .ClockDeviceList:
@@ -142,4 +150,12 @@ public enum AudioBoxProperty: CaseIterable, AudioProperty {
             return .UInt32Array
         }
     }
+}
+
+protocol SomeProtocol {
+    
+}
+
+struct SomeStruct {
+    var someStructs = [SomeProtocol]()
 }
