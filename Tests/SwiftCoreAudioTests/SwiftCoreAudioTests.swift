@@ -33,10 +33,10 @@ final class SwiftCoreAudioTests: XCTestCase {
         print("modelName: \(String(describing: audioObject.modelName))")
         print("bassAudioClass: \(String(describing: audioObject.bassAudioClass))")
         print("audioClass: \(String(describing: audioObject.audioClass))")
-        print("owner: \(String(describing: audioObject.owner?.audioObjectID))")
+        print("owner: \(String(describing: audioObject.ownerAudioObjectID))")
     
-        print("Owned Objects: \(String(describing: audioObject.ownedObjects?.count))")
-        audioObject.ownedObjects?.forEach({ print($0.audioObjectID)})
+        print("Owned Objects: \(String(describing: audioObject.ownedObjects.count))")
+        audioObject.ownedObjects.forEach({ print($0.audioObjectID)})
         print("")
     }
     

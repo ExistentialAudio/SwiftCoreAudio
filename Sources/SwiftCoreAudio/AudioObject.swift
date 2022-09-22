@@ -38,13 +38,13 @@ public class AudioObject: ObservableObject, Identifiable {
  
     @Published public private(set) var modelName: String?
     
-    @Published public private(set) var ownedObjects: [AudioObject]?
+    @Published public private(set) var ownedObjects = [AudioObject]()
     
     @Published public private(set) var bassAudioClass: AudioObjectClass?
 
     @Published public private(set) var audioClass: AudioObjectClass?
 
-    @Published public private(set) var owner: AudioObject?
+    @Published public private(set) var ownerAudioObjectID: AudioObjectID?
     
     init(audioObjectID: AudioObjectID) {
         
@@ -70,7 +70,9 @@ public class AudioObject: ObservableObject, Identifiable {
         
         modelName = try? getData(property: AudioObjectProperty.ModelName) as? String
         
-        ownedObjects = try? getData(property: AudioObjectProperty.OwnedObjects) as? [AudioObject]
+        if let audioObjectIDs = try? getData(property: AudioObjectProperty.OwnedObjects) as? [UInt32] {
+            ownedObjects = audioObjectIDs.map( {AudioObject(audioObjectID: $0)})
+        }
         
         if let audioClassID = try? getData(property: AudioObjectProperty.BaseClass) as? UInt32 {
             bassAudioClass = AudioObjectClass(classID: audioClassID)
@@ -80,7 +82,7 @@ public class AudioObject: ObservableObject, Identifiable {
             audioClass = AudioObjectClass(classID: audioClassID)
         }
         
-        owner = try? getData(property: AudioObjectProperty.Owner) as? AudioObject
+        ownerAudioObjectID = try? getData(property: AudioObjectProperty.Owner) as? UInt32
         
         if let value = try? getData(property: AudioObjectProperty.Identify) as? UInt32 {
             identifyIsEnabled = value != 0
