@@ -9,6 +9,7 @@ import Foundation
 import CoreAudio
 
 public enum AudioObjectClass {
+    case audioObject
     case audioSystemObject
     case audioPlugIn
     case audioTransportManager
@@ -44,6 +45,8 @@ public enum AudioObjectClass {
     
     init(classID: AudioClassID) {
         switch classID {
+        case kAudioObjectClassID:
+            self = .audioObject
         case kAudioSystemObjectClassID:
             self = .audioSystemObject
         case kAudioPlugInClassID:

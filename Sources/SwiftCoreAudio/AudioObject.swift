@@ -20,12 +20,10 @@ public class AudioObject: ObservableObject, Identifiable {
     
     let audioObjectID: AudioObjectID
     
-    @Published public var name: String? {
-        willSet {
-            
-        }
-    }
+    #warning("Name is settable in certain situations")
+    @Published public private(set) var name: String?
     
+    #warning("identifyIsEnabled should be settable")
     @Published public private(set) var identifyIsEnabled: Bool?
     
     @Published public private(set) var manufacturer: String?
@@ -82,7 +80,7 @@ public class AudioObject: ObservableObject, Identifiable {
             audioClass = AudioObjectClass(classID: audioClassID)
         }
         
-        owner = try? getData(property: AudioObjectProperty.OwnedObjects) as? AudioObject
+        owner = try? getData(property: AudioObjectProperty.Owner) as? AudioObject
         
         if let value = try? getData(property: AudioObjectProperty.Identify) as? UInt32 {
             identifyIsEnabled = value != 0

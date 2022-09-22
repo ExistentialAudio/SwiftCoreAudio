@@ -13,8 +13,40 @@ final class SwiftCoreAudioTests: XCTestCase {
 
     }
     
+    func testAudioObject() throws {
+        
+        /// TO DO: Build a test audio objects to test all these items.
+        let audioObject = AudioSystem.getAudioDevice(from: "BlackHole2ch_UID")! as AudioObject
+        
+        print("")
+        print("AudioObject Test")
+        print("----------------")
+        
+        print("AudioObjectID: \(audioObject.audioObjectID)")
+        print("Name: \(String(describing: audioObject.name))")
+        print("identifyIsEnabled: \(String(describing: audioObject.identifyIsEnabled))")
+        print("manufacturer: \(String(describing: audioObject.manufacturer))")
+        print("elementName: \(String(describing: audioObject.elementName))")
+        print("elementNumberName: \(String(describing: audioObject.elementNumberName))")
+        print("serialNumber: \(String(describing: audioObject.serialNumber))")
+        print("firmwareVersion: \(String(describing: audioObject.firmwareVersion))")
+        print("modelName: \(String(describing: audioObject.modelName))")
+        print("bassAudioClass: \(String(describing: audioObject.bassAudioClass))")
+        print("audioClass: \(String(describing: audioObject.audioClass))")
+        print("owner: \(String(describing: audioObject.owner?.audioObjectID))")
+    
+        print("Owned Objects: \(String(describing: audioObject.ownedObjects?.count))")
+        audioObject.ownedObjects?.forEach({ print($0.audioObjectID)})
+        print("")
+    }
+    
     func testAudioSystem() throws {
+        
         let audioSystem = AudioSystem.shared
+        
+        print("")
+        print("AudioSystem Test")
+        print("----------------")
         
         // Audio Devices
         XCTAssertNil(AudioSystem.getAudioDevice(from: "Fake_UID"))
@@ -46,7 +78,8 @@ final class SwiftCoreAudioTests: XCTestCase {
         
         // TransportManager
         XCTAssertNil(AudioSystem.getTransportManager(from: "Fake_UID"))
-//        XCTAssertNotNil(AudioSystem.getTransportManager(from: "BlackHole2ch_UID")) // No Transport Managers to Test
+        /// TO DO: Build a test TransportManagerto test all these items.
+        // XCTAssertNotNil(AudioSystem.getTransportManager(from: "BlackHole2ch_UID"))
         
         print("")
         print("Transport Managers:")
@@ -55,7 +88,8 @@ final class SwiftCoreAudioTests: XCTestCase {
         
         // ClockDevice
         XCTAssertNil(AudioSystem.getClockDevice(from: "Fake_UID"))
-//        XCTAssertNotNil(AudioSystem.getClockDevice(from: "BlackHole2ch_UID")) // No Clock Devices to Test
+        /// TO DO: Build a test ClockDevice test all these items.
+        // XCTAssertNotNil(AudioSystem.getClockDevice(from: "BlackHole2ch_UID")) // No Clock Devices to Test
         
         print("")
         print("Clock Devices:")
