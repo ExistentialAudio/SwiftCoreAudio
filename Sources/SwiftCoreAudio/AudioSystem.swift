@@ -95,86 +95,76 @@ public class AudioSystem: AudioObject {
     @Published public private(set) var isInitingOrExiting = false
     
     @Published public private(set)  var userSessionIsActiveOrHeadless = false
-
-
-    
-    private override init(audioObjectID: AudioObjectID) {
-        super.init(audioObjectID: audioObjectID)
-    }
     
     override func getProperties() {
         super.getProperties()
-        
+
         if let audioObjectID = try? getData(property: AudioSystemProperty.Devices) as? [AudioDeviceID] {
-            self.audioDevices = audioObjectID.map({
-                AudioDevice(audioObjectID: $0)
-            })
+            self.audioDevices = audioObjectID.map({ AudioDevice(audioObjectID: $0) })
         }
-        
-        if let audioObjectID = try? getData(property: AudioSystemProperty.PlugInList) as? [AudioDeviceID] {
-            self.audioPlugIns = audioObjectID.map({
-                AudioPlugIn(audioObjectID: $0)
-            })
+
+        if let audioObjectID = try? getData(property: AudioSystemProperty.PlugInList) as? [AudioObjectID] {
+            self.audioPlugIns = audioObjectID.map({ AudioPlugIn(audioObjectID: $0) })
         }
-        
+
         if let audioObjectID = try? getData(property: AudioSystemProperty.TransportManagerList) as? [AudioDeviceID] {
             self.transportManagers = audioObjectID.map({
                 TransportManager(audioObjectID: $0)
             })
         }
-        
+
         if let audioObjectID = try? getData(property: AudioSystemProperty.BoxList) as? [AudioDeviceID] {
             self.audioBoxes = audioObjectID.map({
                 AudioBox(audioObjectID: $0)
             })
         }
-        
+
         if let audioObjectID = try? getData(property: AudioSystemProperty.ClockDeviceList) as? [AudioDeviceID] {
             self.clockDevices = audioObjectID.map({
                 ClockDevice(audioObjectID: $0)
             })
         }
-        
+
         if let audioObjectID = try? getData(property: AudioSystemProperty.DefaultInputDevice) as? AudioDeviceID {
             self.defaultInputDevice = AudioDevice(audioObjectID: audioObjectID)
         }
-        
+
         if let audioObjectID = try? getData(property: AudioSystemProperty.DefaultOutputDevice) as? AudioDeviceID {
             self.defaultOutputDevice = AudioDevice(audioObjectID: audioObjectID)
         }
-        
+
         if let audioObjectID = try? getData(property: AudioSystemProperty.DefaultSystemOutputDevice) as? AudioDeviceID {
             self.defaultSystemOutputDevice = AudioDevice(audioObjectID: audioObjectID)
         }
-        
+
         if let value = try? getData(property: AudioSystemProperty.MixStereoToMono) as? UInt32 {
             mixStereoToMono = value != 0
         }
-        
+
         if let value = try? getData(property: AudioSystemProperty.ProcessIsMain) as? UInt32 {
             processIsMain = value != 0
         }
-        
+
         if let value = try? getData(property: AudioSystemProperty.IsInitingOrExiting) as? UInt32 {
             isInitingOrExiting = value != 0
         }
-        
+
         if let value = try? getData(property: AudioSystemProperty.ProcessIsAudible) as? UInt32 {
             processIsAudible = value != 0
         }
-        
+
         if let value = try? getData(property: AudioSystemProperty.UnloadingIsAllowed) as? UInt32 {
             unloadingIsAllowed = value != 0
         }
-        
+
         if let value = try? getData(property: AudioSystemProperty.HogModeIsAllowed) as? UInt32 {
             hogModeIsAllowed = value != 0
         }
-        
+
         if let value = try? getData(property: AudioSystemProperty.UserSessionIsActiveOrHeadless) as? UInt32 {
             userSessionIsActiveOrHeadless = value != 0
         }
-        
+
         if let value = try? getData(property: AudioSystemProperty.PowerHint) as? UInt32 {
             powerSaverIsEnabled = value != 0
         }
@@ -187,27 +177,26 @@ public class AudioSystem: AudioObject {
         }
         
         guard audioDeviceID != 0 else {
-            print("Invalid Audio Device UID: \(uniqueID)")
             return nil
         }
         
         return AudioDevice(audioObjectID: audioDeviceID)
     }
 
-    static func getAudioPlugIn(from uniqueID: String) throws -> AudioPlugIn? {
-        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateUIDToDevice, qualifier: uniqueID) as? UInt32 else {
+    static func getAudioPlugIn(from bundleID: String) -> AudioPlugIn? {
+        guard let audioObjectID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateBundleIDToPlugIn, qualifier: bundleID) as? UInt32 else {
             return nil
         }
         
-        guard audioDeviceID != 0 else {
+        guard audioObjectID != 0 else {
             return nil
         }
         
-        return AudioPlugIn(audioObjectID: audioDeviceID)
+        return AudioPlugIn(audioObjectID: audioObjectID)
     }
 
-    static func getTransportManager(from uniqueID: String) throws -> TransportManager? {
-        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateUIDToDevice, qualifier: uniqueID) as? UInt32 else {
+    static func getTransportManager(from uniqueID: String) -> TransportManager? {
+        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateBundleIDToTransportManager, qualifier: uniqueID) as? UInt32 else {
             return nil
         }
         
@@ -218,8 +207,8 @@ public class AudioSystem: AudioObject {
         return TransportManager(audioObjectID: audioDeviceID)
     }
 
-    static func getAudioBox(from uniqueID: String) throws -> AudioBox? {
-        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateUIDToDevice, qualifier: uniqueID) as? UInt32 else {
+    static func getAudioBox(from uniqueID: String) -> AudioBox? {
+        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateUIDToBox, qualifier: uniqueID) as? UInt32 else {
             return nil
         }
         
@@ -230,8 +219,8 @@ public class AudioSystem: AudioObject {
         return AudioBox(audioObjectID: audioDeviceID)
     }
 
-    static func getClockDevice(from uniqueID: String) throws -> ClockDevice? {
-        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateUIDToDevice, qualifier: uniqueID) as? UInt32 else {
+    static func getClockDevice(from uniqueID: String) -> ClockDevice? {
+        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateUIDToClockDevice, qualifier: uniqueID) as? UInt32 else {
             return nil
         }
         

@@ -101,6 +101,71 @@ public class AudioDevice: AudioObject {
     
     override init(audioObjectID: AudioObjectID) {
         super.init(audioObjectID: audioObjectID)
+        
+
+        configurationApplicationBundleID = try? getData(property: AudioDeviceProperty.ConfigurationApplication) as? String
+
+//        deviceUID = try? getData(property: AudioDeviceProperty.DeviceUID) as? String
+//
+//        modelUID = try? getData(property: AudioDeviceProperty.ModelUID) as? String
+//
+//        transportType = try? getData(property: AudioDeviceProperty.TransportType) as? TransportType
+//
+//        relatedAudioDevices = (try? getData(property: AudioDeviceProperty.RelatedDevices) as? [AudioDeviceID])?.map { AudioDevice(audioObjectID: $0) }
+//
+//        clockDomain = try? getData(property: AudioDeviceProperty.ClockDomain) as? Int
+//
+//        isAlive = try? getData(property: AudioDeviceProperty.DeviceIsAlive) as? Bool
+//
+//        isRunning = try? getData(property: AudioDeviceProperty.DeviceIsRunning) as? Bool
+//
+//        canBeDefaultDevice = try? getData(property: AudioDeviceProperty.DeviceCanBeDefaultDevice) as? Bool
+//
+//        canBeSystemDevice = try? getData(property: AudioDeviceProperty.DeviceCanBeDefaultSystemDevice) as? Bool
+//
+//        latency = try? getData(property: AudioDeviceProperty.Latency) as? Int
+        
+//        public var streams = [Stream]()
+//
+//        public var controls = [Control]()
+//
+//        public var safetyOffset: Int?
+//
+//        public var nominalSampleRate: Double?
+//
+//        public var availableNominalSampleRates: [Double]?
+//
+//        public var icon: URL?
+//
+//        public var isHidden: Bool?
+//
+//        public var preferredChannelsForStereo: (left: Int, right: Int)?
+//
+//        public var preferredChannelLayout: AudioChannelLayout?
+//
+//        public var plugInError: AudioError?
+//
+//        public var hogModeProcessID: pid_t?
+//
+//        public var bufferFrameSize: Int?
+//
+//        public var bufferFrameSizeRange: ClosedRange<Int>?
+//
+//        public var variableBufferMaxFrameSize: Int?
+//
+//        public var IOCycleUsage: Double?
+//
+//        public var streamConfiguration: AudioBufferList?
+//
+//        public var IOProcStreamUsage: AudioHardwareIOProcStreamUsage?
+//
+//        public var actualSampleRate: Double?
+//
+//        public var clockDevice: ClockDevice?
+//
+//        public var IOThreadOSWorkgroup: WorkGroup?
+//
+//        public var isProcessMuted: Bool?
     }
     
     

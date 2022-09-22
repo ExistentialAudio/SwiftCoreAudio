@@ -25,6 +25,20 @@ public class ClockDevice: AudioObject {
 //    kAudioClockDevicePropertyNominalSampleRate           = 'nsrt',
 //    kAudioClockDevicePropertyAvailableNominalSampleRates = 'nsr#'
     
+//    public init?(uniqueID: String) {
+//        
+//        guard let clockDevice = try? AudioSystem.getClockDevice(from: uniqueID) else {
+//            return nil
+//        }
+//        
+//        super.init(audioObjectID: clockDevice.audioObjectID)
+//
+//    }
+    
+//    override init(audioObjectID: AudioObjectID) {
+//        super.init(audioObjectID: audioObjectID)
+//    }
+    
 }
 
 public enum AudioClockDeviceProperty: CaseIterable, AudioProperty {

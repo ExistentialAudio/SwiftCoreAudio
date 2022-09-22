@@ -12,6 +12,6 @@ struct AudioClockView: View {
     
     var audioClock: ClockDevice
     var body: some View {
-        AudioObjectView(audioObject: audioClock)
+        Text("Audio Clock")
     }
 }
