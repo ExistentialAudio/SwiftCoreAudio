@@ -113,6 +113,11 @@ public class AudioObject: ObservableObject, Identifiable {
             mScope: scope.value,
             mElement: AudioObjectPropertyElement(channel)
         )
+        
+        guard AudioObjectHasProperty(audioObjectID, &audioObjectPropertyAddress) else {
+            throw AudioError.notSupported
+        }
+        
         var isSettable = DarwinBoolean(booleanLiteral: false)
         let status = AudioObjectIsPropertySettable(audioObjectID, &audioObjectPropertyAddress, &isSettable)
         guard status == noErr else {
@@ -139,6 +144,10 @@ public class AudioObject: ObservableObject, Identifiable {
             mScope: scope.value,
             mElement: UInt32(channel)
         )
+        
+        guard AudioObjectHasProperty(audioObjectID, &audioObjectPropertyAddress) else {
+            throw AudioError.notSupported
+        }
         
         var dataSize = UInt32(0)
         
@@ -179,6 +188,10 @@ public class AudioObject: ObservableObject, Identifiable {
             mScope: scope.value,
             mElement: UInt32(channel)
         )
+        
+        guard AudioObjectHasProperty(audioObjectID, &audioObjectPropertyAddress) else {
+            throw AudioError.notSupported
+        }
         
         var qualifierDataSize = UInt32(0)
         var qualifierData = "" as CFString
@@ -293,6 +306,10 @@ public class AudioObject: ObservableObject, Identifiable {
             mScope: scope.value,
             mElement: UInt32(channel)
         )
+        
+        guard AudioObjectHasProperty(audioObjectID, &audioObjectPropertyAddress) else {
+            throw AudioError.notSupported
+        }
         
         var qualifierDataSize = UInt32(0)
         var qualifierData = "" as CFString

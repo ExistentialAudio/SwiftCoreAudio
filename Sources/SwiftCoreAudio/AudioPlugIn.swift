@@ -32,28 +32,28 @@ public class AudioPlugIn: AudioObject {
     override func getProperties() {
         super.getProperties()
         
-//        if let bundleID = try? getData(property: AudioPlugInProperty.BundleID) as? String {
-//            self.bundleID = bundleID
-//        }
-//        
-//        
-//        if let audioObjectID = try? getData(property: AudioSystemProperty.Devices) as? [AudioDeviceID] {
-//            self.audioDevices = audioObjectID.map({
-//                AudioDevice(audioObjectID: $0)
-//            })
-//        }
-//        
-//        if let audioObjectID = try? getData(property: AudioSystemProperty.BoxList) as? [AudioDeviceID] {
-//            self.audioBoxes = audioObjectID.map({
-//                AudioBox(audioObjectID: $0)
-//            })
-//        }
-//        
-//        if let audioObjectID = try? getData(property: AudioSystemProperty.ClockDeviceList) as? [AudioDeviceID] {
-//            self.clockDevices = audioObjectID.map({
-//                ClockDevice(audioObjectID: $0)
-//            })
-//        }
+        if let bundleID = try? getData(property: AudioPlugInProperty.BundleID) as? String {
+            self.bundleID = bundleID
+        }
+        
+        
+        if let audioObjectID = try? getData(property: AudioSystemProperty.Devices) as? [AudioDeviceID] {
+            self.audioDevices = audioObjectID.map({
+                AudioDevice(audioObjectID: $0)
+            })
+        }
+        
+        if let audioObjectID = try? getData(property: AudioSystemProperty.BoxList) as? [AudioDeviceID] {
+            self.audioBoxes = audioObjectID.map({
+                AudioBox(audioObjectID: $0)
+            })
+        }
+        
+        if let audioObjectID = try? getData(property: AudioSystemProperty.ClockDeviceList) as? [AudioDeviceID] {
+            self.clockDevices = audioObjectID.map({
+                ClockDevice(audioObjectID: $0)
+            })
+        }
     }
     
 }

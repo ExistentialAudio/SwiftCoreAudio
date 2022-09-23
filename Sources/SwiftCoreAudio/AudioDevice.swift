@@ -26,9 +26,11 @@ public class AudioDevice: AudioObject {
     
     public var isRunning: Bool?
     
-    public var canBeDefaultDevice: Bool?
+    public var canBeDefaultInputDevice: Bool?
     
-    public var canBeSystemDevice: Bool?
+    public var canBeDefaultOutputDevice: Bool?
+    
+    public var canBeSystemOutputDevice: Bool?
  
     public var latency: Int?
     
@@ -101,29 +103,40 @@ public class AudioDevice: AudioObject {
     
     override init(audioObjectID: AudioObjectID) {
         super.init(audioObjectID: audioObjectID)
-        
+    }
+    
+    override func getProperties() {
+        super.getProperties()
 
         configurationApplicationBundleID = try? getData(property: AudioDeviceProperty.ConfigurationApplication) as? String
 
-//        deviceUID = try? getData(property: AudioDeviceProperty.DeviceUID) as? String
-//
-//        modelUID = try? getData(property: AudioDeviceProperty.ModelUID) as? String
-//
-//        transportType = try? getData(property: AudioDeviceProperty.TransportType) as? TransportType
-//
-//        relatedAudioDevices = (try? getData(property: AudioDeviceProperty.RelatedDevices) as? [AudioDeviceID])?.map { AudioDevice(audioObjectID: $0) }
-//
-//        clockDomain = try? getData(property: AudioDeviceProperty.ClockDomain) as? Int
-//
-//        isAlive = try? getData(property: AudioDeviceProperty.DeviceIsAlive) as? Bool
-//
-//        isRunning = try? getData(property: AudioDeviceProperty.DeviceIsRunning) as? Bool
-//
-//        canBeDefaultDevice = try? getData(property: AudioDeviceProperty.DeviceCanBeDefaultDevice) as? Bool
-//
-//        canBeSystemDevice = try? getData(property: AudioDeviceProperty.DeviceCanBeDefaultSystemDevice) as? Bool
-//
-//        latency = try? getData(property: AudioDeviceProperty.Latency) as? Int
+        deviceUID = try? getData(property: AudioDeviceProperty.DeviceUID) as? String
+
+        modelUID = try? getData(property: AudioDeviceProperty.ModelUID) as? String
+
+        if let data = try? getData(property: AudioDeviceProperty.TransportType) as? UInt32 {
+            transportType =  TransportType(value: data)
+        }
+
+        if let data = try? getData(property: AudioDeviceProperty.ClockDomain) as? UInt32 {
+            clockDomain = Int(data)
+        }
+        
+        isAlive = try? getData(property: AudioDeviceProperty.DeviceIsAlive) as? UInt32 != 0
+        
+        isRunning = try? getData(property: AudioDeviceProperty.DeviceIsRunning) as? UInt32 != 0
+        
+        canBeDefaultInputDevice = try? getData(property: AudioDeviceProperty.DeviceCanBeDefaultDevice, scope: .input, channel: 0, qualifier: nil) as? UInt32 != 0
+        
+        canBeDefaultOutputDevice = try? getData(property: AudioDeviceProperty.DeviceCanBeDefaultDevice, scope: .output, channel: 0, qualifier: nil) as? UInt32 != 0
+        
+        canBeSystemOutputDevice = try? getData(property: AudioDeviceProperty.DeviceCanBeDefaultSystemDevice, scope: .output, channel: 0, qualifier: nil) as? UInt32 != 0
+
+        if let data = try? getData(property: AudioDeviceProperty.Latency, scope: .output, channel: 0, qualifier: nil) as? UInt32 {
+            latency = Int(data)
+        }
+        
+        //        relatedAudioDevices = (try? getData(property: AudioDeviceProperty.RelatedDevices) as? [AudioDeviceID])?.map { AudioDevice(audioObjectID: $0) }
         
 //        public var streams = [Stream]()
 //
@@ -166,6 +179,8 @@ public class AudioDevice: AudioObject {
 //        public var IOThreadOSWorkgroup: WorkGroup?
 //
 //        public var isProcessMuted: Bool?
+        
+//        isProcessMuted = try? getData(property: AudioDeviceProperty.isProcessMuted, scope: .output, channel: 0, qualifier: nil) as? UInt32 != 0
     }
     
     

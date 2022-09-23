@@ -5,14 +5,6 @@ import CoreAudio
 
 final class SwiftCoreAudioTests: XCTestCase {
     
-    func testAudioDevice() throws {
-        
-        //let audioDevice = AudioDevice(uniqueID: "BuiltInSpeakerDevice")
-        
-        //XCTAssertNotNil(audioDevice)
-
-    }
-    
     func testAudioObject() throws {
         
         /// TO DO: Build a test audio objects to test all these items.
@@ -132,6 +124,82 @@ final class SwiftCoreAudioTests: XCTestCase {
         audioSystem.userIDChanged()
         
         print("")
+    }
+    
+    func testAudioPlugIn() throws {
+        
+        guard let audioPlugIn = AudioPlugIn(bundleID: "BlackHole2ch.driver") else {
+            return
+        }
+        
+        print("")
+        print("AudioPlugIn Test")
+        print("----------------")
+        
+        print("BundleID: \(audioPlugIn.bundleID)")
+        print("AudioDevices: \(audioPlugIn.audioDevices.count)")
+        audioPlugIn.audioDevices.forEach({ print($0.audioObjectID)})
+        print("AudioBoxes: \(audioPlugIn.audioDevices.count)")
+        audioPlugIn.audioBoxes.forEach({ print($0.audioObjectID)})
+        print("AudioClockDevices: \(audioPlugIn.clockDevices.count)")
+        audioPlugIn.clockDevices.forEach({ print($0.audioObjectID)})
+        
+    }
+    
+    func testAudioBox() throws {
+        
+        guard let audioBox = AudioBox(uniqueID: "BlackHole2ch_UID") else {
+            return
+        }
+        
+        print("")
+        print("AudioBox Test")
+        print("----------------")
+        
+        print("UniqueID: \(audioBox.uniqueID)")
+        print("transportType: \(audioBox.transportType)")
+        print("hasAudio: \(audioBox.hasAudio)")
+        print("hasVideo: \(audioBox.hasVideo)")
+        print("hasMIDI: \(audioBox.hasMIDI)")
+        print("isProtected: \(audioBox.isProtected)")
+        
+        // isAquired
+        audioBox.isAquired = false
+        XCTAssertFalse(audioBox.isAquired)
+        audioBox.isAquired = true
+        XCTAssertTrue(audioBox.isAquired)
+    
+        
+        print("AudioDevices: \(audioBox.audioDevices.count)")
+        audioBox.audioDevices.forEach({ print($0.audioObjectID)})
+        print("AudioClockDevices: \(audioBox.clockDevices.count)")
+        audioBox.clockDevices.forEach({ print($0.audioObjectID)})
+    }
+    
+    func testAudioDevice() throws {
+        let audioDevice = AudioDevice(uniqueID: "BlackHole2ch_UID")
+        
+        XCTAssertNotNil(audioDevice)
+        
+        print("")
+        print("AudioBox Test")
+        print("----------------")
+        
+        print("configurationApplicationBundleID: \(String(describing: audioDevice!.configurationApplicationBundleID))")
+        print("deviceUID: \(String(describing: audioDevice?.deviceUID))")
+        print("modelUID: \(String(describing: audioDevice?.modelUID))")
+        print("transportType: \(String(describing: audioDevice?.transportType))")
+        print("clockDomain: \(String(describing: audioDevice?.clockDomain))")
+        print("isRunning: \(String(describing: audioDevice?.isRunning))")
+        print("canBeDefaultInputDevice: \(String(describing: audioDevice?.canBeDefaultInputDevice))")
+        print("canBeDefaultOutputDevice: \(String(describing: audioDevice?.canBeDefaultOutputDevice))")
+        print("canBeSystemOutputDevice: \(String(describing: audioDevice?.canBeSystemOutputDevice))")
+        print("latency: \(String(describing: audioDevice?.latency))")
+
+//
+//        relatedAudioDevices = (try? getData(property: AudioDeviceProperty.RelatedDevices) as? [AudioDeviceID])?.map { AudioDevice(audioObjectID: $0) }
+//
+
     }
     
 }
