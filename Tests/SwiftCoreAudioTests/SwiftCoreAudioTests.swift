@@ -209,6 +209,8 @@ final class SwiftCoreAudioTests: XCTestCase {
         print("nominalSampleRate: \(String(describing: audioDevice?.nominalSampleRate))")
         print("availableNominalSampleRates: \(String(describing: audioDevice?.availableNominalSampleRates))")
         print("isHidden: \(String(describing: audioDevice?.isHidden))")
+        print("preferredChannelsForStereo: \(String(describing: audioDevice?.preferredChannelsForStereo))")
+        print("PreferredChannelLayout: \(String(describing: audioDevice?.preferredChannelLayout))")
 
     }
     

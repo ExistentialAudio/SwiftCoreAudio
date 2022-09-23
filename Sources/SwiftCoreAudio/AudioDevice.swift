@@ -158,10 +158,16 @@ public class AudioDevice: AudioObject {
 //        public var icon: URL?
 
         isHidden = try? getData(property: AudioDeviceProperty.IsHidden) as? UInt32 != 0
-//
-//        public var preferredChannelsForStereo: (left: Int, right: Int)?
-//
-//        public var preferredChannelLayout: AudioChannelLayout?
+        
+        if let data = try? getData(property: AudioDeviceProperty.PreferredChannelsForStereo, scope: .output, channel: 0, qualifier: nil) as? [UInt32] {
+            preferredChannelsForStereo = (Int(data[0]), Int(data[1]))
+        }
+        
+        if let data = try? getData(property: AudioDeviceProperty.PreferredChannelLayout, scope: .output, channel: 0, qualifier: nil) as? AudioChannelLayout {
+            preferredChannelLayout = data
+        }
+        
+
 //
 //        public var plugInError: AudioError?
 //
@@ -190,6 +196,70 @@ public class AudioDevice: AudioObject {
 //        isProcessMuted = try? getData(property: AudioDeviceProperty.isProcessMuted, scope: .output, channel: 0, qualifier: nil) as? UInt32 != 0
     }
     
+//    public var kAudioDevicePropertyPlugIn: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyDeviceHasChanged: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyDeviceIsRunningSomewhere: AudioObjectPropertySelector { get }
+//    public var kAudioDeviceProcessorOverload: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyIOStoppedAbnormally: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyHogMode: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyBufferFrameSize: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyBufferFrameSizeRange: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyUsesVariableBufferFrameSizes: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyIOCycleUsage: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyStreamConfiguration: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyIOProcStreamUsage: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyActualSampleRate: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyClockDevice: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyIOThreadOSWorkgroup: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyProcessMute: AudioObjectPropertySelector { get }
+    
+//    public var kAudioDevicePropertyJackIsConnected: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyVolumeScalar: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyVolumeDecibels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyVolumeRangeDecibels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyVolumeScalarToDecibels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyVolumeDecibelsToScalar: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyStereoPan: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyStereoPanChannels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyMute: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertySolo: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPhantomPower: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPhaseInvert: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyClipLight: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyTalkback: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyListenback: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyDataSource: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyDataSources: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyDataSourceNameForIDCFString: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyDataSourceKindForID: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyClockSource: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyClockSources: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyClockSourceNameForIDCFString: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyClockSourceKindForID: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThru: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruSolo: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruVolumeScalar: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruVolumeDecibels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruVolumeRangeDecibels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruVolumeScalarToDecibels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruVolumeDecibelsToScalar: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruStereoPan: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruStereoPanChannels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruDestination: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruDestinations: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyPlayThruDestinationNameForIDCFString: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyChannelNominalLineLevel: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyChannelNominalLineLevels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyChannelNominalLineLevelNameForIDCFString: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyHighPassFilterSetting: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyHighPassFilterSettings: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertyHighPassFilterSettingNameForIDCFString: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertySubVolumeScalar: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertySubVolumeDecibels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertySubVolumeRangeDecibels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertySubVolumeScalarToDecibels: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertySubVolumeDecibelsToScalar: AudioObjectPropertySelector { get }
+//    public var kAudioDevicePropertySubMute: AudioObjectPropertySelector { get }
     
     
 //
@@ -426,9 +496,9 @@ public enum AudioDeviceProperty: CaseIterable, AudioProperty {
         case .IsHidden:
             return .UInt32
         case .PreferredChannelsForStereo:
-            return .Double
+            return .UInt32Array
         case .PreferredChannelLayout:
-            return .Double
+            return .AudioChannelLayout
         }
     }
 }
