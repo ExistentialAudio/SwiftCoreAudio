@@ -199,6 +199,16 @@ final class SwiftCoreAudioTests: XCTestCase {
 //
 //        relatedAudioDevices = (try? getData(property: AudioDeviceProperty.RelatedDevices) as? [AudioDeviceID])?.map { AudioDevice(audioObjectID: $0) }
 //
+        print("streams: ")
+        audioDevice?.streams.forEach({print($0.audioObjectID)})
+        
+        print("controls: ")
+        audioDevice?.controls.forEach({print($0.audioObjectID)})
+        
+        print("safetyOffset: \(String(describing: audioDevice?.safetyOffset))")
+        print("nominalSampleRate: \(String(describing: audioDevice?.nominalSampleRate))")
+        print("availableNominalSampleRates: \(String(describing: audioDevice?.availableNominalSampleRates))")
+        print("isHidden: \(String(describing: audioDevice?.isHidden))")
 
     }
     

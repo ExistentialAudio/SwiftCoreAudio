@@ -138,19 +138,26 @@ public class AudioDevice: AudioObject {
         
         //        relatedAudioDevices = (try? getData(property: AudioDeviceProperty.RelatedDevices) as? [AudioDeviceID])?.map { AudioDevice(audioObjectID: $0) }
         
-//        public var streams = [Stream]()
-//
-//        public var controls = [Control]()
-//
-//        public var safetyOffset: Int?
-//
-//        public var nominalSampleRate: Double?
-//
-//        public var availableNominalSampleRates: [Double]?
-//
+        if let audioDeviceIds = try? getData(property: AudioDeviceProperty.Streams) as? [AudioDeviceID] {
+            streams = audioDeviceIds.map({Stream(audioObjectID: $0)})
+        }
+        
+        if let audioDeviceIds = try? getData(property: AudioDeviceProperty.ControlList) as? [AudioDeviceID] {
+            controls = audioDeviceIds.map({Control(audioObjectID: $0)})
+        }
+
+        if let data = try? getData(property: AudioDeviceProperty.SafetyOffset, scope: .output, channel: 0, qualifier: nil) as? UInt32 {
+            safetyOffset = Int(data)
+        }
+        
+        nominalSampleRate = try? getData(property: AudioDeviceProperty.NominalSampleRate, scope: .output, channel: 0, qualifier: nil) as? Float64
+
+        availableNominalSampleRates = try? getData(property: AudioDeviceProperty.AvailableNominalSampleRates, scope: .output, channel: 0, qualifier: nil) as? [Float64]
+
+        
 //        public var icon: URL?
-//
-//        public var isHidden: Bool?
+
+        isHidden = try? getData(property: AudioDeviceProperty.IsHidden) as? UInt32 != 0
 //
 //        public var preferredChannelsForStereo: (left: Int, right: Int)?
 //
