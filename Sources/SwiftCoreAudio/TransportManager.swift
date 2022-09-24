@@ -10,6 +10,8 @@ import CoreAudio
 
 public class TransportManager: AudioObject {
     
+    @Published public private(set) var uniqueID = "Unknown"
+    
 //    kAudioTransportManagerClassID   = 'trpm'
     
 //    kAudioTransportManagerPropertyEndPointList              = 'end#',

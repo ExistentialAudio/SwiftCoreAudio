@@ -10,6 +10,8 @@ import CoreAudio
 
 public class ClockDevice: AudioObject {
     
+    @Published public private(set) var uniqueID = "Unknown"
+    
     //    kAudioTransportManagerClassID   = 'trpm'
 //    kAudioBoxClassID    = 'abox'
 //    kAudioDeviceClassID = 'adev'

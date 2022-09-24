@@ -127,8 +127,8 @@ final class SwiftCoreAudioTests: XCTestCase {
     }
     
     func testAudioPlugIn() throws {
-        
-        guard let audioPlugIn = AudioPlugIn(bundleID: "BlackHole2ch.driver") else {
+
+        guard let audioPlugIn = AudioSystem.getAudioPlugIn(from: "BlackHole2ch.driver") else {
             return
         }
         
@@ -148,7 +148,7 @@ final class SwiftCoreAudioTests: XCTestCase {
     
     func testAudioBox() throws {
         
-        guard let audioBox = AudioBox(uniqueID: "BlackHole2ch_UID") else {
+        guard let audioBox = AudioSystem.getAudioBox(from: "BlackHole2ch_UID") else {
             return
         }
         
@@ -177,41 +177,70 @@ final class SwiftCoreAudioTests: XCTestCase {
     }
     
     func testAudioDevice() throws {
-        let audioDevice = AudioDevice(uniqueID: "BlackHole2ch_UID")
-        
-        XCTAssertNotNil(audioDevice)
+
+        guard let audioDevice = AudioSystem.getAudioDevice(from: "BlackHole2ch_UID") else {
+            return
+        }
         
         print("")
-        print("AudioBox Test")
+        print("AudioDevice Test")
         print("----------------")
         
-        print("configurationApplicationBundleID: \(String(describing: audioDevice!.configurationApplicationBundleID))")
-        print("deviceUID: \(String(describing: audioDevice?.deviceUID))")
-        print("modelUID: \(String(describing: audioDevice?.modelUID))")
-        print("transportType: \(String(describing: audioDevice?.transportType))")
-        print("clockDomain: \(String(describing: audioDevice?.clockDomain))")
-        print("isRunning: \(String(describing: audioDevice?.isRunning))")
-        print("canBeDefaultInputDevice: \(String(describing: audioDevice?.canBeDefaultInputDevice))")
-        print("canBeDefaultOutputDevice: \(String(describing: audioDevice?.canBeDefaultOutputDevice))")
-        print("canBeSystemOutputDevice: \(String(describing: audioDevice?.canBeSystemOutputDevice))")
-        print("latency: \(String(describing: audioDevice?.latency))")
+        print("configurationApplicationBundleID: \(String(describing: audioDevice.configurationApplicationBundleID))")
+        print("deviceUID: \(String(describing: audioDevice.deviceUID))")
+        print("modelUID: \(String(describing: audioDevice.modelUID))")
+        print("transportType: \(String(describing: audioDevice.transportType))")
+        print("clockDomain: \(String(describing: audioDevice.clockDomain))")
+        print("isRunning: \(String(describing: audioDevice.isRunning))")
+        print("canBeDefaultInputDevice: \(String(describing: audioDevice.canBeDefaultInputDevice))")
+        print("canBeDefaultOutputDevice: \(String(describing: audioDevice.canBeDefaultOutputDevice))")
+        print("canBeSystemOutputDevice: \(String(describing: audioDevice.canBeSystemOutputDevice))")
+        print("latency: \(String(describing: audioDevice.latency))")
 
 //
 //        relatedAudioDevices = (try? getData(property: AudioDeviceProperty.RelatedDevices) as? [AudioDeviceID])?.map { AudioDevice(audioObjectID: $0) }
 //
         print("streams: ")
-        audioDevice?.streams.forEach({print($0.audioObjectID)})
+        audioDevice.streams.forEach({print($0.audioObjectID)})
         
         print("controls: ")
-        audioDevice?.controls.forEach({print($0.audioObjectID)})
+        audioDevice.controls.forEach({print($0.audioObjectID)})
         
-        print("safetyOffset: \(String(describing: audioDevice?.safetyOffset))")
-        print("nominalSampleRate: \(String(describing: audioDevice?.nominalSampleRate))")
-        print("availableNominalSampleRates: \(String(describing: audioDevice?.availableNominalSampleRates))")
-        print("isHidden: \(String(describing: audioDevice?.isHidden))")
-        print("preferredChannelsForStereo: \(String(describing: audioDevice?.preferredChannelsForStereo))")
-        print("PreferredChannelLayout: \(String(describing: audioDevice?.preferredChannelLayout))")
+        print("safetyOffset: \(String(describing: audioDevice.safetyOffset))")
+        print("nominalSampleRate: \(String(describing: audioDevice.nominalSampleRate))")
+        print("availableNominalSampleRates: \(String(describing: audioDevice.availableNominalSampleRates))")
+        print("isHidden: \(String(describing: audioDevice.isHidden))")
+        print("preferredChannelsForStereo: \(String(describing: audioDevice.preferredChannelsForStereo))")
+        print("PreferredChannelLayout: \(String(describing: audioDevice.preferredChannelLayout))")
+        
+        // Needs completion.
 
     }
     
+    func testAudioStream() throws {
+        
+        guard let audioDevice = AudioSystem.getAudioDevice(from: "BlackHole2ch_UID") else {
+            return
+        }
+        
+        guard let stream = audioDevice.streams.first else {
+            return
+        }
+        
+        print("")
+        print("AudioStream Test")
+        print("----------------")
+        
+    
+        print("isActive: \(stream.isActive)")
+        print("direction: \(stream.direction)")
+        print("terminalType: \(stream.terminalType)")
+        print("startingChannel: \(stream.startingChannel)")
+        print("latency: \(stream.latency)")
+        print("virtualFormat: \(stream.virtualFormat)")
+//        print("virtualFormats: \(stream.virtualFormats)")
+        print("physicalFormat: \(stream.physicalFormat)")
+//        print("phyicalFormats: \(stream.physicalFormats)")
+        
+    }
 }

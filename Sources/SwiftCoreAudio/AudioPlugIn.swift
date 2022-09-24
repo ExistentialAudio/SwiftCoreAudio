@@ -18,17 +18,6 @@ public class AudioPlugIn: AudioObject {
     
     @Published public private(set) var clockDevices = [ClockDevice]()
     
-    public init?(bundleID: String) {
-        guard let plugIn = try? AudioSystem.getAudioPlugIn(from: bundleID) else {
-            return nil
-        }
-        super.init(audioObjectID: plugIn.audioObjectID)
-    }
-    
-    override init(audioObjectID: AudioObjectID) {
-        super.init(audioObjectID: audioObjectID)
-    }
-    
     override func getProperties() {
         super.getProperties()
         

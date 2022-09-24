@@ -172,63 +172,23 @@ public class AudioSystem: AudioObject {
     }
 
     static func getAudioDevice(from uniqueID: String) -> AudioDevice? {
-        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateUIDToDevice, qualifier: uniqueID) as? UInt32 else {
-            return nil
-        }
-        
-        guard audioDeviceID != 0 else {
-            return nil
-        }
-        
-        return AudioDevice(audioObjectID: audioDeviceID)
+        AudioSystem.shared.audioDevices.first { $0.deviceUID == uniqueID }
     }
 
     static func getAudioPlugIn(from bundleID: String) -> AudioPlugIn? {
-        guard let audioObjectID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateBundleIDToPlugIn, qualifier: bundleID) as? UInt32 else {
-            return nil
-        }
-        
-        guard audioObjectID != 0 else {
-            return nil
-        }
-        
-        return AudioPlugIn(audioObjectID: audioObjectID)
+        AudioSystem.shared.audioPlugIns.first { $0.bundleID == bundleID }
     }
 
     static func getTransportManager(from uniqueID: String) -> TransportManager? {
-        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateBundleIDToTransportManager, qualifier: uniqueID) as? UInt32 else {
-            return nil
-        }
-        
-        guard audioDeviceID != 0 else {
-            return nil
-        }
-        
-        return TransportManager(audioObjectID: audioDeviceID)
+        AudioSystem.shared.transportManagers.first { $0.uniqueID == uniqueID }
     }
 
     static func getAudioBox(from uniqueID: String) -> AudioBox? {
-        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateUIDToBox, qualifier: uniqueID) as? UInt32 else {
-            return nil
-        }
-        
-        guard audioDeviceID != 0 else {
-            return nil
-        }
-        
-        return AudioBox(audioObjectID: audioDeviceID)
+        AudioSystem.shared.audioBoxes.first { $0.uniqueID == uniqueID }
     }
 
     static func getClockDevice(from uniqueID: String) -> ClockDevice? {
-        guard let audioDeviceID = try? AudioSystem.shared.getData(property: AudioSystemProperty.TranslateUIDToClockDevice, qualifier: uniqueID) as? UInt32 else {
-            return nil
-        }
-        
-        guard audioDeviceID != 0 else {
-            return nil
-        }
-        
-        return ClockDevice(audioObjectID: audioDeviceID)
+        AudioSystem.shared.clockDevices.first { $0.uniqueID == uniqueID }
     }
 
     public func userIDChanged() {}

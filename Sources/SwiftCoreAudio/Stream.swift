@@ -13,23 +13,64 @@ import CoreAudio
 
 public class Stream: AudioObject {
 
-    public var isActive: Bool?
+    public var isActive = false
     
-    public var direction: AudioDirection?
+    public var direction: AudioDirection = .unknown
     
-    public var terminalType: TerminalType?
+    public var terminalType: TerminalType = .unknown
 
-    public var startingChannel: Int?
+    public var startingChannel = 0
     
-    public var latency: Int?
+    public var latency = 0
 
-    public var virtualFormat: AudioStreamBasicDescription?
+    public var virtualFormat = AudioStreamBasicDescription()
     
-    public var virtualFormats: [AudioStreamBasicDescription]?
+    public var virtualFormats = [AudioStreamBasicDescription]()
     
-    public var physicalFormat: AudioStreamBasicDescription?
+    public var physicalFormat = AudioStreamBasicDescription()
     
-    public var phyicalFormats: [AudioStreamBasicDescription]?
+    public var physicalFormats = [AudioStreamBasicDescription]()
+    
+    override func getProperties() {
+        super.getProperties()
+        
+        if let data = try? getData(property: AudioStreamProperty.IsActive) as? UInt32 {
+            isActive = data != 0
+        }
+        
+        if let data = try? getData(property: AudioStreamProperty.Direction) as? UInt32 {
+            direction = AudioDirection(value: data)
+        }
+        
+        if let data = try? getData(property: AudioStreamProperty.TerminalType) as? UInt32 {
+            terminalType = TerminalType(value: data)
+        }
+        
+        if let data = try? getData(property: AudioStreamProperty.StartingChannel) as? UInt32 {
+            startingChannel = Int(data)
+        }
+        
+        if let data = try? getData(property: AudioStreamProperty.Latency) as? UInt32 {
+            latency = Int(data)
+        }
+        
+        if let data = try? getData(property: AudioStreamProperty.VirtualFormat) as? AudioStreamBasicDescription {
+            virtualFormat = data
+        }
+//
+//        if let data = try? getData(property: AudioStreamProperty.AvailableVirtualFormats) as? [AudioStreamBasicDescription] {
+//            //virtualFormats = data
+//        }
+//
+        if let data = try? getData(property: AudioStreamProperty.PhysicalFormat) as? AudioStreamBasicDescription {
+            physicalFormat = data
+        }
+
+//        if let data = try? getData(property: AudioStreamProperty.AvailablePhysicalFormats) as? [AudioStreamBasicDescription] {
+//            //physicalFormats = data
+//        }
+    }
+    
 }
 public enum AudioStreamProperty: CaseIterable, AudioProperty {
     case IsActive
