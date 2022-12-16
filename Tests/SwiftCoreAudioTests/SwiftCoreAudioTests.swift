@@ -50,15 +50,15 @@ final class SwiftCoreAudioTests: XCTestCase {
 
         print("")
         print("Audio Devices:")
-        audioSystem.audioDevices.forEach({ print($0.name! )}) // Fix this
+        audioSystem.audioDevices.forEach({ print($0.deviceUID! )}) // Fix this
 
         // PlugIn
         XCTAssertNil(AudioSystem.getAudioPlugIn(from: "audio.existential.Fake"))
-        XCTAssertNotNil(AudioSystem.getAudioPlugIn(from: "BlackHole2ch.driver")) // This seems to be a BlackHole bug
+        XCTAssertNotNil(AudioSystem.getAudioPlugIn(from: "existential.audio.BlackHole2ch")) // This seems to be a BlackHole bug
         
         print("")
         print("PlugIns:")
-        audioSystem.audioPlugIns.forEach { print($0.name!) }
+        audioSystem.audioPlugIns.forEach { print($0.bundleID) }
 
         // Box
         XCTAssertNil(AudioSystem.getAudioBox(from: "Fake_UID"))
@@ -66,7 +66,7 @@ final class SwiftCoreAudioTests: XCTestCase {
         
         print("")
         print("Boxes:")
-        audioSystem.audioBoxes.forEach { print($0.name!) }
+        audioSystem.audioBoxes.forEach { print($0.uniqueID) }
         
         // TransportManager
         XCTAssertNil(AudioSystem.getTransportManager(from: "Fake_UID"))
@@ -98,10 +98,10 @@ final class SwiftCoreAudioTests: XCTestCase {
         XCTAssertTrue(audioSystem.unloadingIsAllowed)
         
         // Mix Stereo To Mono
-        audioSystem.mixStereoToMono = false
-        XCTAssertFalse(audioSystem.mixStereoToMono)
         audioSystem.mixStereoToMono = true
         XCTAssertTrue(audioSystem.mixStereoToMono)
+        audioSystem.mixStereoToMono = false
+        XCTAssertFalse(audioSystem.mixStereoToMono)
         
         // Process Is Audible
         audioSystem.processIsAudible = false
@@ -128,7 +128,7 @@ final class SwiftCoreAudioTests: XCTestCase {
     
     func testAudioPlugIn() throws {
 
-        guard let audioPlugIn = AudioSystem.getAudioPlugIn(from: "BlackHole2ch.driver") else {
+        guard let audioPlugIn = AudioSystem.getAudioPlugIn(from: "com.stevenslateaudio.VSXSystemwideDriver") else {
             return
         }
         
@@ -138,17 +138,17 @@ final class SwiftCoreAudioTests: XCTestCase {
         
         print("BundleID: \(audioPlugIn.bundleID)")
         print("AudioDevices: \(audioPlugIn.audioDevices.count)")
-        audioPlugIn.audioDevices.forEach({ print($0.audioObjectID)})
-        print("AudioBoxes: \(audioPlugIn.audioDevices.count)")
-        audioPlugIn.audioBoxes.forEach({ print($0.audioObjectID)})
+        audioPlugIn.audioDevices.forEach({ print($0.deviceUID)})
+        print("AudioBoxes: \(audioPlugIn.audioBoxes.count)")
+        audioPlugIn.audioBoxes.forEach({ print($0.uniqueID)})
         print("AudioClockDevices: \(audioPlugIn.clockDevices.count)")
-        audioPlugIn.clockDevices.forEach({ print($0.audioObjectID)})
+        audioPlugIn.clockDevices.forEach({ print($0.uniqueID)})
         
     }
     
     func testAudioBox() throws {
         
-        guard let audioBox = AudioSystem.getAudioBox(from: "BlackHole2ch_UID") else {
+        guard let audioBox = AudioSystem.getAudioBox(from: "Pro Tools Audio Bridge 2-A_UID") else {
             return
         }
         
@@ -178,7 +178,7 @@ final class SwiftCoreAudioTests: XCTestCase {
     
     func testAudioDevice() throws {
 
-        guard let audioDevice = AudioSystem.getAudioDevice(from: "BlackHole2ch_UID") else {
+        guard let audioDevice = AudioSystem.getAudioDevice(from: "Pro Tools Audio Bridge 2-A_UID") else {
             return
         }
         

@@ -21,7 +21,7 @@ public class AudioObject: ObservableObject, Identifiable {
     let audioObjectID: AudioObjectID
     
     #warning("Name is settable in certain situations")
-    @Published public private(set) var name: String?
+    @Published public private(set) var name: String? = ""
     
     #warning("identifyIsEnabled should be settable")
     @Published public private(set) var identifyIsEnabled: Bool?
@@ -256,7 +256,8 @@ public class AudioObject: ObservableObject, Identifiable {
             
         case .AudioChannelLayout:
             var data = AudioChannelLayout()
-            status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            #warning("FIX ME")
+            //status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
             returnData = data
             
         case .AudioStreamBasicDescription:
@@ -330,7 +331,7 @@ public class AudioObject: ObservableObject, Identifiable {
             } else {
                 throw AudioError.notSupported
             }
-        case is Int:
+        case is Int, is UInt32:
             let dataSize = UInt32(MemoryLayout<UInt32>.stride)
             if let data = data as? UInt32 {
                 var data = data

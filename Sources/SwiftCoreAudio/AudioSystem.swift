@@ -24,11 +24,44 @@ public class AudioSystem: AudioObject {
 
     @Published public private(set) var clockDevices = [ClockDevice]()
 
-    @Published public var defaultInputDevice: AudioDevice?
+    @Published public var defaultInputDevice: AudioDevice? {
+        didSet {
+            guard let defaultInputDevice = defaultInputDevice else {
+                return
+            }
+            do {
+                try setData(property: AudioSystemProperty.DefaultInputDevice, data: defaultInputDevice.audioObjectID)
+            } catch {
+                self.defaultInputDevice = oldValue
+            }
+        }
+    }
 
-    @Published public var defaultOutputDevice: AudioDevice?
+    @Published public var defaultOutputDevice: AudioDevice? {
+        didSet {
+            guard let defaultOutputDevice = defaultOutputDevice else {
+                return
+            }
+            do {
+                try setData(property: AudioSystemProperty.DefaultOutputDevice, data: defaultOutputDevice.audioObjectID)
+            } catch {
+                self.defaultOutputDevice = oldValue
+            }
+        }
+    }
 
-    @Published public var defaultSystemOutputDevice: AudioDevice?
+    @Published public var defaultSystemOutputDevice: AudioDevice? {
+        didSet {
+            guard let defaultSystemOutputDevice = defaultSystemOutputDevice else {
+                return
+            }
+            do {
+                try setData(property: AudioSystemProperty.DefaultSystemOutputDevice, data: defaultSystemOutputDevice.audioObjectID)
+            } catch {
+                self.defaultSystemOutputDevice = oldValue
+            }
+        }
+    }
     
     @Published public var mixStereoToMono = false {
         didSet {
@@ -168,8 +201,38 @@ public class AudioSystem: AudioObject {
         if let value = try? getData(property: AudioSystemProperty.PowerHint) as? UInt32 {
             powerSaverIsEnabled = value != 0
         }
+        setupListener()
+    }
+    
+    func setupListener() {
+        
+        for property in AudioSystemProperty.allCases {
+            
+            var address = AudioObjectPropertyAddress(
+                mSelector: AudioObjectPropertySelector(property.value),
+                mScope: kAudioObjectPropertyScopeGlobal,
+                mElement: kAudioObjectPropertyElementMain)
+            
+            let status = AudioObjectAddPropertyListener(AudioObjectID(kAudioObjectSystemObject), &address, listenerProc(), nil)
+            
+            print(status)
+        }
         
     }
+    
+    func listenerProc() -> AudioObjectPropertyListenerProc {
+        return { _, _, _, _ in
+            print("called")
+            
+            
+            
+//            DispatchQueue.main.async {
+//                AudioSystem.shared.getProperties()
+//            }
+            return noErr
+        }
+    }
+    
 
     static func getAudioDevice(from uniqueID: String) -> AudioDevice? {
         AudioSystem.shared.audioDevices.first { $0.deviceUID == uniqueID }
