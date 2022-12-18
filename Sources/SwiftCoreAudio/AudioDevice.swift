@@ -8,7 +8,11 @@
 import Foundation
 import CoreAudio
 
-public class AudioDevice: AudioObject {
+public class AudioDevice: AudioObject, Equatable {
+    public static func == (lhs: AudioDevice, rhs: AudioDevice) -> Bool {
+        lhs.deviceUID == rhs.deviceUID
+    }
+    
 
     public var configurationApplicationBundleID: String?
     
