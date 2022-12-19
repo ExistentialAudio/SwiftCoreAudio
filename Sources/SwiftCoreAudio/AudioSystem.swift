@@ -226,7 +226,6 @@ public class AudioSystem: AudioObject {
             print("called")
             
             
-            
 //            DispatchQueue.main.async {
 //                AudioSystem.shared.getProperties()
 //            }
