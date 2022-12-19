@@ -37,13 +37,14 @@ public class AudioSystem: AudioObject {
         }
     }
 
+#warning("Not working")
     @Published public var defaultOutputDevice: AudioDevice? {
         didSet {
             guard let defaultOutputDevice = defaultOutputDevice else {
                 return
             }
             do {
-                try setData(property: AudioSystemProperty.DefaultOutputDevice, data: defaultOutputDevice.audioObjectID)
+                try setData(property: AudioSystemProperty.DefaultOutputDevice, scope: .wildcard, channel: 0, data: defaultOutputDevice.audioObjectID)
             } catch {
                 self.defaultOutputDevice = oldValue
             }

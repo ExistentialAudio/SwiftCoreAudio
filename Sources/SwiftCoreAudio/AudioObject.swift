@@ -18,7 +18,7 @@ extension UInt32 {
 
 public class AudioObject: ObservableObject, Identifiable {
     
-    let audioObjectID: AudioObjectID
+    public let audioObjectID: AudioObjectID
     
     #warning("Name is settable in certain situations")
     @Published public private(set) var name: String? = ""
