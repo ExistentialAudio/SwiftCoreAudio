@@ -14,7 +14,7 @@ public class AudioSystem: AudioObject {
     
     public static let shared = AudioSystem(audioObjectID: AudioObjectID(kAudioObjectSystemObject))
      
-    @Published public private(set) var audioDevices = [AudioDevice]()
+    @Published public var audioDevices = [AudioDevice]()
 
     @Published public private(set) var audioPlugIns = [AudioPlugIn]()
 
@@ -130,6 +130,12 @@ public class AudioSystem: AudioObject {
     
     @Published public private(set)  var userSessionIsActiveOrHeadless = false
     
+    func updateAudioDevices() {
+        if let audioObjectID = try? getData(property: AudioSystemProperty.Devices) as? [AudioDeviceID] {
+            self.audioDevices = audioObjectID.map({ AudioDevice(audioObjectID: $0) })
+        }
+    }
+    
     override func getProperties() {
         super.getProperties()
 
@@ -224,14 +230,14 @@ public class AudioSystem: AudioObject {
     func listenerProc() -> AudioObjectPropertyListenerProc {
         return { audioObjectID, _, address, _ in
             
-            
             switch address.pointee.mSelector {
             case kAudioHardwarePropertyDevices:
+                AudioSystem.shared.updateAudioDevices()
                 print("Devices Changed")
             default:
                 print("Something else")
             }
-            
+
             return noErr
         }
     }
