@@ -222,13 +222,16 @@ public class AudioSystem: AudioObject {
     }
     
     func listenerProc() -> AudioObjectPropertyListenerProc {
-        return { _, _, _, _ in
-            print("called")
+        return { audioObjectID, _, address, _ in
             
             
-//            DispatchQueue.main.async {
-//                AudioSystem.shared.getProperties()
-//            }
+            switch address.pointee.mSelector {
+            case kAudioHardwarePropertyDevices:
+                print("Devices Changed")
+            default:
+                print("Something else")
+            }
+            
             return noErr
         }
     }
