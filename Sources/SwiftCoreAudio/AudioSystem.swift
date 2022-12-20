@@ -132,7 +132,9 @@ public class AudioSystem: AudioObject {
     
     func updateAudioDevices() {
         if let audioObjectID = try? getData(property: AudioSystemProperty.Devices) as? [AudioDeviceID] {
-            self.audioDevices = audioObjectID.map({ AudioDevice(audioObjectID: $0) })
+            DispatchQueue.main.async {
+                self.audioDevices = audioObjectID.map({ AudioDevice(audioObjectID: $0) })
+            }
         }
     }
     
