@@ -8,9 +8,13 @@
 import Foundation
 import CoreAudio
 
-public class AudioDevice: AudioObject, Equatable {
+public class AudioDevice: AudioObject, Hashable {
     public static func == (lhs: AudioDevice, rhs: AudioDevice) -> Bool {
         lhs.deviceUID == rhs.deviceUID
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(audioObjectID)
     }
     
 
