@@ -267,7 +267,7 @@ public class AudioDevice: AudioObject, Equatable {
     
     
 //
-//    // Implimented in AudioControls
+//    // Implemented in AudioControls
 //    public func getJackIsConnected(for direction: AudioDirection, channel: Int) throws -> Bool {
 //        try getUInt32(
 //            for: kAudioDevicePropertyJackIsConnected,
