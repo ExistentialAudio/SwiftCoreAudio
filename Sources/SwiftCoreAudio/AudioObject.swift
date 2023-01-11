@@ -18,7 +18,7 @@ extension UInt32 {
 
 public class AudioObject: ObservableObject, Identifiable {
     
-    public let audioObjectID: AudioObjectID
+    public var audioObjectID: AudioObjectID?
     
     #warning("Name is settable in certain situations")
     @Published public private(set) var name: String? = ""
@@ -52,6 +52,9 @@ public class AudioObject: ObservableObject, Identifiable {
         
         getProperties()
 
+    }
+    
+    init() {
     }
     
     func getProperties() {
@@ -95,6 +98,10 @@ public class AudioObject: ObservableObject, Identifiable {
         scope: AudioScope = .global,
         element: Int = 0
     ) -> Bool {
+        guard let audioObjectID = audioObjectID else {
+            return false
+        }
+        
         var audioObjectPropertyAddress = AudioObjectPropertyAddress(
             mSelector: property.value,
             mScope: scope.value,
@@ -113,6 +120,10 @@ public class AudioObject: ObservableObject, Identifiable {
             mScope: scope.value,
             mElement: AudioObjectPropertyElement(channel)
         )
+        
+        guard let audioObjectID = audioObjectID else {
+            throw AudioError.audioHardwareBadDeviceError
+        }
         
         guard AudioObjectHasProperty(audioObjectID, &audioObjectPropertyAddress) else {
             throw AudioError.notSupported
@@ -144,6 +155,10 @@ public class AudioObject: ObservableObject, Identifiable {
             mScope: scope.value,
             mElement: UInt32(channel)
         )
+        
+        guard let audioObjectID = audioObjectID else {
+            throw AudioError.audioHardwareBadDeviceError
+        }
         
         guard AudioObjectHasProperty(audioObjectID, &audioObjectPropertyAddress) else {
             throw AudioError.notSupported
@@ -188,6 +203,10 @@ public class AudioObject: ObservableObject, Identifiable {
             mScope: scope.value,
             mElement: UInt32(channel)
         )
+        
+        guard let audioObjectID = audioObjectID else {
+            throw AudioError.audioHardwareBadDeviceError
+        }
         
         guard AudioObjectHasProperty(audioObjectID, &audioObjectPropertyAddress) else {
             throw AudioError.notSupported
@@ -307,6 +326,10 @@ public class AudioObject: ObservableObject, Identifiable {
             mScope: scope.value,
             mElement: UInt32(channel)
         )
+        
+        guard let audioObjectID = audioObjectID else {
+            throw AudioError.audioHardwareBadDeviceError
+        }
         
         guard AudioObjectHasProperty(audioObjectID, &audioObjectPropertyAddress) else {
             throw AudioError.notSupported

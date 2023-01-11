@@ -10,7 +10,7 @@ import CoreAudio
 
 public class AudioBox: AudioObject {
 
-    @Published public private(set) var uniqueID = "Unknown"
+    let uniqueID: String
     
     @Published public private(set) var transportType = TransportType.unknown
     
@@ -36,24 +36,16 @@ public class AudioBox: AudioObject {
     
     @Published public private(set) var clockDevices = [ClockDevice]()
     
-    public init?(uniqueID: String) {
-        guard let audioBox = AudioSystem.getAudioBox(from: uniqueID) else {
-            return nil
-        }
+    public init(uniqueID: String) {
+        self.uniqueID = uniqueID
         
-        super.init(audioObjectID: audioBox.audioObjectID)
-    }
-    
-    override init(audioObjectID: AudioObjectID) {
-        super.init(audioObjectID: audioObjectID)
+        super.init()
     }
     
     override func getProperties() {
         super.getProperties()
         
-        if let uniqueID = try? getData(property: AudioBoxProperty.BoxUID) as? String {
-            self.uniqueID = uniqueID
-        }
+
         
         if let value = try? getData(property: AudioBoxProperty.HasAudio) as? UInt32 {
             hasAudio = value != 0
