@@ -1,153 +1,82 @@
 //
 //  AudioBox.swift
-//  
+//  VSXSystemwide
 //
-//  Created by Devin Roth on 2022-07-10.
+//  Created by Devin Roth on 2023-01-10.
 //
 
 import Foundation
 import CoreAudio
 
-public class AudioBox: AudioObject {
-
+class AudioBox {
+    
     let uniqueID: String
     
-    @Published public private(set) var transportType = TransportType.unknown
-    
-    @Published public private(set) var hasAudio = false
-    
-    @Published public private(set) var hasVideo = false
-    
-    @Published public private(set) var hasMIDI = false
-    
-    @Published public private(set) var isProtected = false
-    
-    @Published public var isAquired = false  {
-        didSet {
-            do {
-                try setData(property: AudioBoxProperty.Acquired, data: isAquired)
-            } catch {
-                isAquired = oldValue
+    var audioObjectID: AudioObjectID? {
+        get {
+            
+            var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyTranslateUIDToBox, mScope: 0, mElement: 0)
+            let qualifierDataSize = UInt32(MemoryLayout<CFString>.stride)
+            var qualifierData = uniqueID as CFString
+            var dataSize = UInt32(MemoryLayout<AudioObjectID>.stride)
+            var data = AudioObjectID()
+            
+            let status = AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &audioObjectPropertyAddress, qualifierDataSize, &qualifierData, &dataSize, &data)
+            
+            guard status == noErr else {
+                return nil
             }
+            
+            guard data != 0 else {
+                return nil
+            }
+            
+            return data
         }
     }
- 
-    @Published public private(set) var audioDevices = [AudioDevice]()
     
-    @Published public private(set) var clockDevices = [ClockDevice]()
+    var isAquired: Bool {
+        get {
+            
+            guard let audioObjectID = audioObjectID else {
+                return false
+            }
+            
+            var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioBoxPropertyAcquired, mScope: 0, mElement: 0)
+            var dataSize = UInt32(MemoryLayout<UInt32>.stride)
+            var data = UInt32(0)
+            
+            let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
+            
+            guard status == noErr else {
+                return false
+            }
+            
+            return data != 0
+        }
+        
+        set {
+            
+            guard let audioObjectID = audioObjectID else {
+                return
+            }
+            
+            var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioBoxPropertyAcquired, mScope: 0, mElement: 0)
+            let dataSize = UInt32(MemoryLayout<UInt32>.stride)
+            var data = UInt32(newValue ? 1 : 0)
+            
+            _ = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
+        }
+    }
     
-    public init(uniqueID: String) {
+    var isAlive: Bool {
+        get {
+            return audioObjectID != nil
+        }
+    }
+    
+    init(uniqueID: String) {
         self.uniqueID = uniqueID
-        
-        super.init()
     }
     
-    override func getProperties() {
-        super.getProperties()
-        
-
-        
-        if let value = try? getData(property: AudioBoxProperty.HasAudio) as? UInt32 {
-            hasAudio = value != 0
-        }
-        
-        if let value = try? getData(property: AudioBoxProperty.HasMIDI) as? UInt32 {
-            hasMIDI = value != 0
-        }
-        
-        if let value = try? getData(property: AudioBoxProperty.IsProtected) as? UInt32 {
-            isProtected = value != 0
-        }
-        
-        if let value = try? getData(property: AudioBoxProperty.Acquired) as? UInt32 {
-            isAquired = value != 0
-        }
-        
-        if let audioObjectID = try? getData(property: AudioBoxProperty.DeviceList) as? [AudioDeviceID] {
-            self.audioDevices = audioObjectID.map({
-                AudioDevice(audioObjectID: $0)
-            })
-        }
-        
-        if let audioObjectID = try? getData(property: AudioBoxProperty.ClockDeviceList) as? [AudioDeviceID] {
-            self.clockDevices = audioObjectID.map({
-                ClockDevice(audioObjectID: $0)
-            })
-        }
-        
-        if let value = try? getData(property: AudioBoxProperty.TransportType) as? UInt32 {
-            self.transportType = TransportType(value: value)
-        }
-    }
-    
-}
-public enum AudioBoxProperty: CaseIterable, AudioProperty {
-    case BoxUID
-    case TransportType
-    case HasAudio
-    case HasVideo
-    case HasMIDI
-    case IsProtected
-    case Acquired // Settable
-    case AcquisitionFailed
-    case DeviceList
-    case ClockDeviceList
-    
-    public var value: UInt32 {
-        switch self {
-        case .BoxUID:
-            return kAudioBoxPropertyBoxUID
-        case .TransportType:
-            return kAudioBoxPropertyTransportType
-        case .HasAudio:
-            return kAudioBoxPropertyHasAudio
-        case .HasVideo:
-            return kAudioBoxPropertyHasVideo
-        case .HasMIDI:
-            return kAudioBoxPropertyHasMIDI
-        case .IsProtected:
-            return kAudioBoxPropertyIsProtected
-        case .Acquired:
-            return kAudioBoxPropertyAcquired
-        case .AcquisitionFailed:
-            return kAudioBoxPropertyAcquisitionFailed // Notification only
-        case .DeviceList:
-            return kAudioBoxPropertyDeviceList
-        case .ClockDeviceList:
-            return kAudioBoxPropertyClockDeviceList
-        }
-    }
-    
-    public var type: AudioPropertyType {
-        switch self {
-        case .BoxUID:
-            return .CFString
-        case .TransportType:
-            return .UInt32
-        case .HasAudio:
-            return .UInt32
-        case .HasVideo:
-            return .UInt32
-        case .HasMIDI:
-            return .UInt32
-        case .IsProtected:
-            return .UInt32
-        case .Acquired:
-            return .UInt32
-        case .AcquisitionFailed:
-            return .UInt32
-        case .DeviceList:
-            return .UInt32Array
-        case .ClockDeviceList:
-            return .UInt32Array
-        }
-    }
-}
-
-protocol SomeProtocol {
-    
-}
-
-struct SomeStruct {
-    var someStructs = [SomeProtocol]()
 }
