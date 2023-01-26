@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-class AudioStream {
+public class AudioStream {
     public var audioObjectID: AudioObjectID
     
     public var direction: AudioDirection {

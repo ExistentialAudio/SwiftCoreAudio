@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-class AudioSystem: ObservableObject {
+public class AudioSystem: ObservableObject {
     public static let shared: AudioSystem = AudioSystem()
     
     public var defaultOutput: AudioDevice? {
@@ -67,8 +67,22 @@ class AudioSystem: ObservableObject {
     
     @Published public private(set) var audioDevices = [AudioDevice]()
     
+    @Published public private(set) var inputAudioDevices = [AudioDevice]()
+    
+    @Published public private(set) var outputAudioDevices = [AudioDevice]()
+    
     private init() {
         audioDevices = getAudioDevices()
+        inputAudioDevices = audioDevices.filter({ audioDevice in
+            audioDevice.streams.contains { audioStream in
+                audioStream.direction == .input
+            }
+        })
+        outputAudioDevices = audioDevices.filter({ audioDevice in
+            audioDevice.streams.contains { audioStream in
+                audioStream.direction == .output
+            }
+        })
         addDeviceListListener()
     }
     
@@ -152,6 +166,16 @@ class AudioSystem: ObservableObject {
         { _, _, _, _ in
             DispatchQueue.main.async {
                 AudioSystem.shared.audioDevices = AudioSystem.shared.getAudioDevices()
+                AudioSystem.shared.inputAudioDevices = AudioSystem.shared.audioDevices.filter({ audioDevice in
+                    audioDevice.streams.contains { audioStream in
+                        audioStream.direction == .input
+                    }
+                })
+                AudioSystem.shared.outputAudioDevices = AudioSystem.shared.audioDevices.filter({ audioDevice in
+                    audioDevice.streams.contains { audioStream in
+                        audioStream.direction == .output
+                    }
+                })
             }
             
             return 0

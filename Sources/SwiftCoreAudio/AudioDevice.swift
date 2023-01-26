@@ -8,9 +8,9 @@
 import Foundation
 import CoreAudio
 
-class AudioDevice: Hashable {
+public class AudioDevice: Hashable {
     
-    let uniqueID: String
+    public let uniqueID: String
     
     var audioObjectID: AudioObjectID? {
         get {
@@ -35,7 +35,7 @@ class AudioDevice: Hashable {
         }
     }
     
-    var name: String {
+    public var name: String {
         get {
             
             guard let audioObjectID = audioObjectID else {
@@ -205,7 +205,7 @@ class AudioDevice: Hashable {
     }
     
     // Equatable
-    static func == (lhs: AudioDevice, rhs: AudioDevice) -> Bool {
+    public static func == (lhs: AudioDevice, rhs: AudioDevice) -> Bool {
         lhs.uniqueID == rhs.uniqueID
     }
     
@@ -214,7 +214,7 @@ class AudioDevice: Hashable {
         hasher.combine(uniqueID)
     }
     
-    init(uniqueID: String) {
+    public init(uniqueID: String) {
         self.uniqueID = uniqueID
     }
     
@@ -232,5 +232,6 @@ class AudioDevice: Hashable {
         
         uniqueID = data as String
     }
+    
     
 }
