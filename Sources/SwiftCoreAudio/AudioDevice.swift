@@ -56,7 +56,7 @@ public class AudioDevice: Hashable {
         }
     }
     
-    var streams: [AudioStream] {
+    public var streams: [AudioStream] {
         
         guard let audioObjectID = audioObjectID else {
             return [AudioStream]()

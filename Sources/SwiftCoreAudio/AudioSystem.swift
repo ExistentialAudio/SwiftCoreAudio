@@ -132,9 +132,9 @@ public class AudioSystem: ObservableObject {
     func addDeviceListListener() {
         // add listener for device changes
         var addr = AudioObjectPropertyAddress(
-            mSelector: kAudioPlugInPropertyDeviceList,
-            mScope: kAudioObjectPropertyScopeGlobal,
-            mElement: kAudioObjectPropertyElementMain
+            mSelector: kAudioHardwarePropertyDevices,
+            mScope: kAudioObjectPropertyScopeWildcard,
+            mElement: kAudioObjectPropertyElementWildcard
         )
         
         // pass pointer to self
@@ -149,9 +149,9 @@ public class AudioSystem: ObservableObject {
     func removeDeviceListListener() {
         // add listener for device changes
         var addr = AudioObjectPropertyAddress(
-            mSelector: kAudioPlugInPropertyDeviceList,
-            mScope: kAudioObjectPropertyScopeGlobal,
-            mElement: kAudioObjectPropertyElementMain
+            mSelector: kAudioHardwarePropertyDevices,
+            mScope: kAudioObjectPropertyScopeWildcard,
+            mElement: kAudioObjectPropertyElementWildcard
         )
         
         AudioObjectRemovePropertyListener(
