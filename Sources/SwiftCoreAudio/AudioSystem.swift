@@ -86,14 +86,14 @@ public class AudioSystem: ObservableObject {
         addDeviceListListener()
     }
     
-    private func getAudioDevices() -> [AudioDevice] {
+    public func getAudioDevices() -> [AudioDevice] {
      
         // setup variables
         var status = noErr
         var inAddress = AudioObjectPropertyAddress(
             mSelector: kAudioHardwarePropertyDevices,
-            mScope: kAudioObjectPropertyScopeWildcard,
-            mElement: kAudioObjectPropertyElementWildcard
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
         )
         
         // get the size
@@ -133,8 +133,8 @@ public class AudioSystem: ObservableObject {
         // add listener for device changes
         var addr = AudioObjectPropertyAddress(
             mSelector: kAudioHardwarePropertyDevices,
-            mScope: kAudioObjectPropertyScopeWildcard,
-            mElement: kAudioObjectPropertyElementWildcard
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
         )
         
         // pass pointer to self
@@ -150,8 +150,8 @@ public class AudioSystem: ObservableObject {
         // add listener for device changes
         var addr = AudioObjectPropertyAddress(
             mSelector: kAudioHardwarePropertyDevices,
-            mScope: kAudioObjectPropertyScopeWildcard,
-            mElement: kAudioObjectPropertyElementWildcard
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
         )
         
         AudioObjectRemovePropertyListener(
