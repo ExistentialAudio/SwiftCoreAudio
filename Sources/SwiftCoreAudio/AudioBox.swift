@@ -8,7 +8,7 @@
 import Foundation
 import CoreAudio
 
-class AudioBox {
+public class AudioBox {
     
     let uniqueID: String
     
@@ -35,7 +35,7 @@ class AudioBox {
         }
     }
     
-    var isAquired: Bool {
+    public var isAquired: Bool {
         get {
             
             guard let audioObjectID = audioObjectID else {
@@ -75,7 +75,7 @@ class AudioBox {
         }
     }
     
-    init(uniqueID: String) {
+    public init(uniqueID: String) {
         self.uniqueID = uniqueID
     }
     
