@@ -204,6 +204,29 @@ public class AudioDevice: Hashable {
         }
     }
     
+    // TransportType
+    
+    
+    // Model
+    
+    public var model: String {
+        guard let audioObjectID = audioObjectID else {
+            return "Unknown Model"
+        }
+
+        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyModelUID, mScope: 0, mElement: 0)
+        var dataSize = UInt32(MemoryLayout<CFString>.stride)
+        var data = "" as CFString
+
+        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
+
+        guard status == noErr else {
+            return "Unknown Audio Device"
+        }
+
+        return data as String
+    }
+    
     // Equatable
     public static func == (lhs: AudioDevice, rhs: AudioDevice) -> Bool {
         lhs.uniqueID == rhs.uniqueID
