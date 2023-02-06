@@ -205,7 +205,83 @@ public class AudioDevice: Hashable {
     }
     
     // TransportType
+    public enum TransportType {
+        case Unknown
+        case BuiltIn
+        case Aggregate
+        case AutoAggregate
+        case Virtual
+        case PCI
+        case USB
+        case FireWire
+        case Bluetooth
+        case BluetoothLE
+        case HDMI
+        case DisplayPort
+        case AirPlay
+        case AVB
+        case Thunderbolt
+        case ContinuityCaptureWired
+        case ContinuityCaptureWireless
+        case ContinuityCapture
+        
+        init(value: UInt32) {
+            switch value {
+            case kAudioDeviceTransportTypeBuiltIn:
+                self = .BuiltIn
+            case kAudioDeviceTransportTypeAggregate:
+                self = .Aggregate
+            case kAudioDeviceTransportTypeAutoAggregate:
+                self = .AutoAggregate
+            case kAudioDeviceTransportTypeVirtual:
+                self = .Virtual
+            case kAudioDeviceTransportTypePCI:
+                self = .PCI
+            case kAudioDeviceTransportTypeUSB:
+                self = .USB
+            case kAudioDeviceTransportTypeFireWire:
+                self = .FireWire
+            case kAudioDeviceTransportTypeBluetooth:
+                self = .Bluetooth
+            case kAudioDeviceTransportTypeBluetoothLE:
+                self = .BluetoothLE
+            case kAudioDeviceTransportTypeHDMI:
+                self = .HDMI
+            case kAudioDeviceTransportTypeDisplayPort:
+                self = .DisplayPort
+            case kAudioDeviceTransportTypeAirPlay:
+                self = .AirPlay
+            case kAudioDeviceTransportTypeAVB:
+                self = .AVB
+            case kAudioDeviceTransportTypeThunderbolt:
+                self = .Thunderbolt
+            case kAudioDeviceTransportTypeContinuityCaptureWired:
+                self = .ContinuityCaptureWired
+            case kAudioDeviceTransportTypeContinuityCaptureWireless:
+                self = .ContinuityCaptureWireless
+            default:
+                self = .Unknown
+            }
+        }
+    }
     
+    public var transportType: TransportType {
+        guard let audioObjectID = audioObjectID else {
+            return .Unknown
+        }
+
+        var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyTransportType, mScope: 0, mElement: 0)
+        var dataSize = UInt32(MemoryLayout<UInt32>.stride)
+        var data = UInt32()
+
+        let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
+
+        guard status == noErr else {
+            return .Unknown
+        }
+
+        return TransportType(value: data)
+    }
     
     // Model
     
@@ -221,7 +297,7 @@ public class AudioDevice: Hashable {
         let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
 
         guard status == noErr else {
-            return "Unknown Audio Device"
+            return "Unknown Model"
         }
 
         return data as String
