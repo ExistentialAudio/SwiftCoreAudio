@@ -65,18 +65,7 @@ public class AudioSystem: ObservableObject {
         }
     }
     
-    @Published public private(set) var audioDevices = [AudioDevice]() {
-        didSet {
-            audioDevices.forEach({
-                print("")
-                print($0.uniqueID)
-                print($0.name)
-                print($0.model)
-                print("")
-                
-            })
-        }
-    }
+    @Published public private(set) var audioDevices = [AudioDevice]()
     
     @Published public private(set) var inputAudioDevices = [AudioDevice]()
     
