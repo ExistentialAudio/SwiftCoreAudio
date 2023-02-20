@@ -28,6 +28,19 @@ public class AudioStream {
         }
     }
     
+    public var format: AudioStreamBasicDescription {
+        get {
+
+            var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyStreamFormat, mScope: 0, mElement: 0)
+            var dataSize = UInt32(MemoryLayout<AudioStreamBasicDescription>.stride)
+            var audioStreamBasicDescription = AudioStreamBasicDescription()
+            
+            let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &audioStreamBasicDescription)
+            
+            return audioStreamBasicDescription
+        }
+    }
+    
     init(audioObjectID: AudioObjectID) {
         self.audioObjectID = audioObjectID
     }
