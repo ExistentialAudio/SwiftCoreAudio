@@ -69,7 +69,7 @@ public class AudioBox {
         }
     }
     
-    var isAlive: Bool {
+    public var isAlive: Bool {
         get {
             return audioObjectID != nil
         }
