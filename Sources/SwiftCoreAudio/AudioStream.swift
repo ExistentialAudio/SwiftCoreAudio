@@ -35,7 +35,7 @@ public class AudioStream {
             var dataSize = UInt32(MemoryLayout<AudioStreamBasicDescription>.stride)
             var audioStreamBasicDescription = AudioStreamBasicDescription()
             
-            let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &audioStreamBasicDescription)
+            _ = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &audioStreamBasicDescription)
             
             return audioStreamBasicDescription
         }
