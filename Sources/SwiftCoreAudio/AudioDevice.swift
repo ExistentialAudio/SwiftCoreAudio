@@ -38,8 +38,16 @@ public class AudioDevice: Hashable {
     public var name: String {
         get {
             
+            if uniqueID == "MSLoopbackDriverDevice_UID" {
+                return "Microsoft Loopback Driver"
+            }
+            
+            if uniqueID == "zoom.us.zoomaudiodevice.001" {
+                return "Zoom Audio Device"
+            }
+            
             guard let audioObjectID = audioObjectID else {
-                return "Unknown Audio Device"
+                return uniqueID
             }
 
             var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyDeviceNameCFString, mScope: 0, mElement: 0)
@@ -49,7 +57,7 @@ public class AudioDevice: Hashable {
             let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
 
             guard status == noErr else {
-                return "Unknown Audio Device"
+                return uniqueID
             }
 
             return data as String
