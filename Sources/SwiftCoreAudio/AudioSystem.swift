@@ -65,6 +65,60 @@ public class AudioSystem: ObservableObject {
         }
     }
     
+    public var defaultInput: AudioDevice? {
+        get {
+            
+            // get the device ID
+            var inAddress = AudioObjectPropertyAddress(
+                mSelector: kAudioHardwarePropertyDefaultInputDevice,
+                mScope: kAudioObjectPropertyScopeWildcard,
+                mElement: kAudioObjectPropertyElementWildcard
+            )
+            
+            var data = AudioObjectID()
+            var size = UInt32(MemoryLayout<AudioDeviceID>.stride)
+            
+            let error = AudioObjectGetPropertyData(
+                AudioObjectID(kAudioObjectSystemObject),
+                &inAddress,
+                0,
+                nil,
+                &size,
+                &data
+            )
+            
+            guard data != 0 && error == noErr else {
+                return nil
+            }
+            
+            return AudioDevice(audioObjectID: data)
+        }
+        
+        set {
+            guard let audioObjectID = newValue?.audioObjectID else {
+                return
+            }
+            
+            var inAddress = AudioObjectPropertyAddress(
+                mSelector: kAudioHardwarePropertyDefaultInputDevice,
+                mScope: kAudioObjectPropertyScopeWildcard,
+                mElement: kAudioObjectPropertyElementWildcard
+            )
+            
+            var data = audioObjectID
+            let size = UInt32(MemoryLayout<AudioDeviceID>.stride)
+            
+            _ = AudioObjectSetPropertyData(
+                AudioObjectID(kAudioObjectSystemObject),
+                &inAddress,
+                0,
+                nil,
+                size,
+                &data
+            )
+        }
+    }
+    
     @Published public private(set) var audioDevices = [AudioDevice]()
     
     @Published public private(set) var inputAudioDevices = [AudioDevice]()
