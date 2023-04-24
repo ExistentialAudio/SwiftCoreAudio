@@ -113,7 +113,7 @@ public class AudioDevice: Hashable {
         return data.compactMap { AudioStream(audioObjectID: $0)}
     }
     
-    var volume: Double {
+    public var volume: Double {
         get {
             guard let audioObjectID = audioObjectID else {
                 return 0
@@ -121,7 +121,7 @@ public class AudioDevice: Hashable {
             
             var inAddress = AudioObjectPropertyAddress(
                 mSelector: kAudioDevicePropertyVolumeScalar,
-                mScope: kAudioDevicePropertyScopeOutput,
+                mScope: kAudioDevicePropertyScopeInput,
                 mElement: kAudioObjectPropertyElementMain
             )
             
@@ -157,7 +157,7 @@ public class AudioDevice: Hashable {
             
             var inAddress = AudioObjectPropertyAddress(
                 mSelector: kAudioDevicePropertyVolumeScalar,
-                mScope: kAudioDevicePropertyScopeOutput,
+                mScope: kAudioDevicePropertyScopeInput,
                 mElement: kAudioObjectPropertyElementMain
             )
             let size = UInt32(MemoryLayout<Float32>.stride)
@@ -207,6 +207,105 @@ public class AudioDevice: Hashable {
 
                 if status != noErr {
                     print("Failed to set the channel 2 volume.")
+                }
+            }
+        }
+    }
+    
+    public var mute: Bool {
+        get {
+            guard let audioObjectID = audioObjectID else {
+                return false
+            }
+            
+            var inAddress = AudioObjectPropertyAddress(
+                mSelector: kAudioDevicePropertyMute,
+                mScope: kAudioDevicePropertyScopeInput,
+                mElement: kAudioObjectPropertyElementMain
+            )
+            
+            var mute: UInt32 = 0
+            var size = UInt32(MemoryLayout<UInt32>.stride)
+            
+            if (!AudioObjectHasProperty(audioObjectID, &inAddress)) {
+                inAddress.mElement = 1
+            }
+            
+            let status = AudioObjectGetPropertyData(
+                audioObjectID,
+                &inAddress,
+                0,
+                nil,
+                &size,
+                &mute
+            )
+
+            if status != noErr {
+                print("Failed to get the mute")
+                return false
+            }
+
+            return mute == 0 ? false : true
+        }
+        
+        set {
+                
+            guard let audioObjectID = audioObjectID else {
+                return
+            }
+            
+            var inAddress = AudioObjectPropertyAddress(
+                mSelector: kAudioDevicePropertyMute,
+                mScope: kAudioDevicePropertyScopeInput,
+                mElement: kAudioObjectPropertyElementMain
+            )
+            let size = UInt32(MemoryLayout<UInt32>.stride)
+            var status: OSStatus = noErr
+            var mute: UInt32 = newValue ? 1 : 0
+            
+            // adjust the master or adjust channel 1 and channel 2
+            if (AudioObjectHasProperty(audioObjectID, &inAddress)) {
+                status = AudioObjectSetPropertyData(
+                    audioObjectID,
+                    &inAddress,
+                    0,
+                    nil,
+                    size,
+                    &mute
+                )
+
+                if status != noErr {
+                    print("Failed to set the master mute.")
+                }
+                
+            } else {
+                inAddress.mElement = 1
+
+                status = AudioObjectSetPropertyData(
+                    audioObjectID,
+                    &inAddress,
+                    0,
+                    nil,
+                    size,
+                    &mute
+                )
+
+                if status != noErr {
+                    print("Failed to set the channel 1 mute.")
+                }
+
+                inAddress.mElement = 2
+                status = AudioObjectSetPropertyData(
+                    audioObjectID,
+                    &inAddress,
+                    0,
+                    nil,
+                    size,
+                    &mute
+                )
+
+                if status != noErr {
+                    print("Failed to set the channel 2 mute.")
                 }
             }
         }
