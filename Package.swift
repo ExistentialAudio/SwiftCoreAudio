@@ -17,10 +17,15 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "SwiftCoreAudio",
+            name: "SwiftCoreAudioC",
             dependencies: []),
+        .target(
+            name: "SwiftCoreAudio",
+            dependencies: ["SwiftCoreAudioC"]),
         .testTarget(
             name: "SwiftCoreAudioTests",
             dependencies: ["SwiftCoreAudio"]),
-    ]
+    ],
+    cLanguageStandard: .c11,
+    cxxLanguageStandard: .cxx14
 )

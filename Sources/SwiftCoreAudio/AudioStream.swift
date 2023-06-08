@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreAudio
+import SwiftCoreAudioC
 
 public class AudioStream {
     public var audioObjectID: AudioObjectID
@@ -18,7 +19,7 @@ public class AudioStream {
             var dataSize = UInt32(MemoryLayout<UInt32>.stride)
             var data = UInt32()
             
-            let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
+            let status = SwiftCoreAudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
             
             guard status == noErr else {
                 return .unknown
