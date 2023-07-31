@@ -12,7 +12,7 @@ public class AudioDevice: Hashable {
     
     public let uniqueID: String
     
-    var audioObjectID: AudioObjectID? {
+    public var audioObjectID: AudioObjectID? {
         get {
             
             var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyTranslateUIDToDevice, mScope: 0, mElement: 0)
