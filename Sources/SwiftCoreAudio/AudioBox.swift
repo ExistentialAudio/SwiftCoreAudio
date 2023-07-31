@@ -35,7 +35,7 @@ public class AudioBox {
         }
     }
     
-    public var isAquired: Bool {
+    public var isAcquired: Bool {
         get {
             
             guard let audioObjectID = audioObjectID else {

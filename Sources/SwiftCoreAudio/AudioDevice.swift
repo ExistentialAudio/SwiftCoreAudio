@@ -46,7 +46,7 @@ public class AudioDevice: Hashable {
                 return "Zoom Audio Device"
             }
             
-            guard let audioObjectID = audioObjectID else {
+            guard let audioObjectID else {
                 return uniqueID
             }
 
@@ -61,6 +61,32 @@ public class AudioDevice: Hashable {
             }
 
             return data as String
+        }
+    }
+    
+    public var sampleRate: Double {
+        get {
+            guard let audioObjectID else {
+                return 0
+            }
+            
+            var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyNominalSampleRate, mScope: 0, mElement: 0)
+            var dataSize = UInt32(MemoryLayout<Float64>.stride)
+            var data = Float64()
+
+            let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
+            
+            return Double(data)
+        }
+        
+        set {
+            guard let audioObjectID else { return }
+            
+            var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyNominalSampleRate, mScope: 0, mElement: 0)
+            let dataSize = UInt32(MemoryLayout<Float64>.stride)
+            var data = Float64(newValue)
+            
+            let status = AudioObjectSetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, dataSize, &data)
         }
     }
     
