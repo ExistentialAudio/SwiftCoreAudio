@@ -12,7 +12,7 @@ public class AudioBox {
     
     let uniqueID: String
     
-    var audioObjectID: AudioObjectID? {
+    public var audioObjectID: AudioObjectID? {
         get {
             
             var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyTranslateUIDToBox, mScope: 0, mElement: 0)
