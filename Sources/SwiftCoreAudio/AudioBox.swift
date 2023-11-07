@@ -69,6 +69,27 @@ public class AudioBox {
         }
     }
     
+    public var version: String? {
+        get {
+            
+            guard let audioObjectID = audioObjectID else {
+                return nil
+            }
+            
+            var audioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioObjectPropertyFirmwareVersion, mScope: 0, mElement: 0)
+            var dataSize = UInt32(MemoryLayout<CFString>.stride)
+            var data = "" as CFString
+            
+            let status = AudioObjectGetPropertyData(audioObjectID, &audioObjectPropertyAddress, 0, nil, &dataSize, &data)
+            
+            guard status == noErr else {
+                return nil
+            }
+            
+            return data as String
+        }
+    }
+    
     public var isAlive: Bool {
         get {
             return audioObjectID != nil
