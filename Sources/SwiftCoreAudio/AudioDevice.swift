@@ -337,6 +337,28 @@ public class AudioDevice: Hashable {
         }
     }
     
+    public var isRunningSomewhere: Bool {
+        get {
+           
+            guard let audioObjectID else { return false }
+            
+            var addr = AudioObjectPropertyAddress(
+                mSelector: kAudioDevicePropertyDeviceIsRunningSomewhere,
+                mScope: kAudioObjectPropertyScopeGlobal,
+                mElement: kAudioObjectPropertyElementMain
+            )
+            
+            var data = UInt32()
+            var dataSize = UInt32(MemoryLayout<UInt32>.stride)
+            
+            let status = AudioObjectGetPropertyData(audioObjectID, &addr, 0, nil, &dataSize, &data)
+            
+            guard status == noErr else { return false }
+            
+            return data != 0
+        }
+    }
+    
     // TransportType
     public enum TransportType {
         case Unknown
